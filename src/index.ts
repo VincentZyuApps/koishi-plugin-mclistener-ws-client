@@ -1,4 +1,5 @@
 import { Context, Schema, Logger, h } from 'koishi';
+import { platform } from 'os';
 
 export const name = 'mclistener-ws-client';
 
@@ -13,6 +14,17 @@ export const Config = Schema.intersect([
       .default('ws://localhost:8765')
       .description('ws服务器地址'),
   }).description('ws配置'),
+
+  Schema.object({
+    enablePrivateReport: Schema.boolean()
+      .default(false)
+      .description('启用私聊报告. 如果启用，那么ws的断开和链接将不会发到群里，而是私聊发送给指定的人'),
+    privateReportUserIdList: Schema.array(Schema.object({
+      platform: Schema.string().description('平台名称'),
+      userId: Schema.string().description('用户 ID'),
+    })).role('table').description('私聊报告用户 ID 列表'),
+  }).description('私聊报告配置'),
+
   Schema.object({
     targetPlatformChannelList: Schema.array(
       Schema.object({
@@ -21,6 +33,7 @@ export const Config = Schema.intersect([
       })
     ).role('table').description('目标平台频道列表'),
   }).description('转发 目的地 配置'),
+
   Schema.object({
     sourcePlatformList: Schema.array(
       Schema.object({
@@ -157,7 +170,12 @@ class MclistenerWsClient {
         clearInterval(this.reconnectTimer);
         this.reconnectTimer = null;
       }
-      this.sendMessageToChannels(`[mclistener-ws-client]\n成功连接到WS: ${this.config.wsServerUrl}`);
+      
+      if (this.config.enablePrivateReport) {
+        this.sendPrivateMessages(`[mclistener-ws-client]\n成功连接到WS: ${this.config.wsServerUrl}`);
+      } else {
+        this.sendMessageToChannels(`[mclistener-ws-client]\n成功连接到WS: ${this.config.wsServerUrl}`);
+      }
     };
 
     this.ws.onmessage = (event) => {
@@ -167,12 +185,24 @@ class MclistenerWsClient {
     this.ws.onclose = (event) => {
       this.isConnecting = false;
       logger.warn(`WS 连接已关闭，代码: ${event.code}, 原因: ${event.reason}`);
-      this.sendMessageToChannels(`[mclistener-ws-client]\nWS连接已断开，正在尝试重连...`);
+      
+      if (this.config.enablePrivateReport) {
+        this.sendPrivateMessages(`[mclistener-ws-client]\nWS连接已断开，正在尝试重连...`);
+      } else {
+        this.sendMessageToChannels(`[mclistener-ws-client]\nWS连接已断开，正在尝试重连...`);
+      }
+      
       this.scheduleReconnect();
     };
 
     this.ws.onerror = (error) => {
-      logger.error('WS 连接错误:', error);
+      logger.error(`WS 连接错误: ${JSON.stringify(error)}`);
+      
+      if (this.config.enablePrivateReport) {
+        this.sendPrivateMessages(`[mclistener-ws-client]\nWS连接发生错误: ${JSON.stringify(error)}`);
+      } else {
+        this.sendMessageToChannels(`[mclistener-ws-client]\nWS连接发生错误: ${JSON.stringify(error)}`);
+      }
     };
   }
 
@@ -280,6 +310,21 @@ class MclistenerWsClient {
             logger.info(`成功向 ${target.platform}:${target.channelId} 发送消息。`);
           } catch (e) {
             logger.error(`向 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
+          }
+        }
+      }
+    }
+  }
+
+  private async sendPrivateMessages(message: string) {
+    for (const bot of this.ctx.bots) {
+      for (const target of this.config.privateReportUserIdList) {
+        if (bot.platform === target.platform) {
+          try {
+            await bot.sendPrivateMessage(target.userId, message);
+            logger.info(`成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
+          } catch (e) {
+            logger.error(`向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
           }
         }
       }
