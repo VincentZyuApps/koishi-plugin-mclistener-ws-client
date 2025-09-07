@@ -1,5 +1,6 @@
 import { Context, Schema, Logger, h } from 'koishi';
 import { platform } from 'os';
+import { config } from 'process';
 
 export const name = 'mclistener-ws-client';
 
@@ -26,6 +27,9 @@ export const Config = Schema.intersect([
   }).description('私聊报告配置'),
 
   Schema.object({
+    enableAddDateTimePrefix: Schema.boolean()
+      .default(true)
+      .description('转发到聊天平台时，是否启用添加日期时间前缀'),
     targetPlatformChannelList: Schema.array(
       Schema.object({
         platform: Schema.string().description('平台名称'),
@@ -64,7 +68,7 @@ export const Config = Schema.intersect([
       .default(true)
       .description('启用转发 服务器玩家聊天消息 到 聊天平台'),
     customizePlayerChatMsg: Schema.string()
-      .default('🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%👀👀👀')
+      .default('🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%')
       .description('自定义玩家聊天消息，%PLAYER% 会被替换为玩家名称，%CONTENT% 会被替换为聊天内容'),
     enableFowardMsgPrefixCheck: Schema.boolean()
       .default(true)
@@ -238,9 +242,9 @@ class MclistenerWsClient {
           .replace('%CONTENT%', content);
       }
 
-      if (msg) {
-        this.sendMessageToChannels(`[${new Date().toLocaleString()}]\n\n${msg}`);
-      }
+      if ( this.config.enableAddDateTimePrefix ) 
+        msg = `[${new Date().toLocaleString()}]\n\n${msg}`;
+      this.sendMessageToChannels(msg);
     } catch (e) {
       logger.error(`消息处理失败: ${e.message}`);
     }
