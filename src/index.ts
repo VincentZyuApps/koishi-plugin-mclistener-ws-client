@@ -262,6 +262,7 @@ class MclistenerWsClient {
             logger.info(`忽略黑名单玩家的消息: ${player_name}: ${content}`);
             return;
           }
+        }
         msg = this.config.customizePlayerChatMsg
           .replace('%PLAYER%', player_name)
           .replace('%CONTENT%', content);
