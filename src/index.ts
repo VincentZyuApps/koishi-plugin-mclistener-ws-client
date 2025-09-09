@@ -70,12 +70,18 @@ export const Config = Schema.intersect([
     customizePlayerChatMsg: Schema.string()
       .default('🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%')
       .description('自定义玩家聊天消息，%PLAYER% 会被替换为玩家名称，%CONTENT% 会被替换为聊天内容'),
-    enableFowardMsgPrefixCheck: Schema.boolean()
+    enableFowardMsgPrefixWhitelistCheck: Schema.boolean()
       .default(true)
-      .description('启用聊天消息前缀检查，只转发指定前缀的聊天消息'),
-    fowardMsgPrefixList: Schema.array(String)
+      .description('启用聊天消息前缀检查，只转发指定前缀的聊天消息 <br> 比如如果你不想让 服务器里面转发到群里面的消息太多，可以向玩家告知，只有以 "!!" 开头的消息才会被转发'),
+    fowardMsgPrefixWhitelistList: Schema.array(String)
       .default(['!!'])
-      .description('聊天消息前缀列表，启用前缀检查后生效'),
+      .description('聊天消息前缀列表，启用前缀检查后生效 <br> 默认值是!! 两个英文感叹号，当然你也可以设置多个'),
+    enableForwardMsgPrefixBlacklistCheck: Schema.boolean()
+      .default(false)
+      .description('启用聊天消息前缀黑名单检查，阻止转发指定前缀的聊天消息 <br> 比如你不想让服务器的 斜杠开头的命令转发到这个 就应该启用 '),
+    fowardMsgPrefixBlacklistList: Schema.array(String)
+      .default(['/'])
+      .description('聊天消息前缀黑名单列表，启用前缀黑名单检查后生效 <br> 默认值是/ 斜杠，当然你也可以设置多个'),
   }).description('转发 服务器玩家聊天信息 到 聊天平台 配置'),
   Schema.object({
     enableFowardPlatformChat: Schema.boolean() 
@@ -230,10 +236,17 @@ class MclistenerWsClient {
       } else if (type === 'player_leave' && this.config.enableForwardPlayerLeave) {
         msg = this.config.customizePlayerLeaveMsg.replace('%PLAYER%', player_name);
       } else if (type === 'player_msg' && this.config.enableForwardPlayerChat) {
-        if (this.config.enableFowardMsgPrefixCheck) {
-          const prefixMatch = this.config.fowardMsgPrefixList.some((prefix) => content.startsWith(prefix));
-          if (!prefixMatch) {
-            logger.info(`忽略不符合前缀的消息: ${content}`);
+        if (this.config.enableFowardMsgPrefixWhitelistCheck) {
+          const prefixWhitelistMatch = this.config.fowardMsgPrefixWhitelistList.some((prefix) => content.startsWith(prefix));
+          if (!prefixWhitelistMatch) {
+            logger.info(`忽略不符合前缀白名单的消息: ${content}`);
+            return;
+          }
+        }
+        if (this.config.enableForwardMsgPrefixBlacklistCheck) {
+          const prefixBlacklistMatch = this.config.fowardMsgPrefixBlacklistList.some((prefix) => content.startsWith(prefix));
+          if (prefixBlacklistMatch) {
+            logger.info(`忽略符合前缀黑名单的消息: ${content}`);
             return;
           }
         }
