@@ -104,36 +104,90 @@ export const Config = Schema.intersect([
       .description('排除机器人自己发送的消息'),
   }).description('转发 聊天平台信息 到 服务器 配置'),
 
+  Schema.object({
+    verboseConsoleOutput: Schema.boolean()
+      .default(false)
+      .description('启用详细的控制台输出，用于调试和问题排查'),
+  }).description('调试配置'),
+
 ]);
 
 const logger = new Logger('mclistener-ws-client');
 
 export function apply(ctx: Context, config: any) {
-  const client = new MclistenerWsClient(ctx, config);
+  let client: MclistenerWsClient | null = null;
+
+  if (config.verboseConsoleOutput) {
+    logger.info(`[DEBUG] 插件开始初始化，config: ${JSON.stringify(config, null, 2)}`);
+  }
 
   ctx.on('ready', () => {
+    if (config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] 收到ready事件，创建并连接WS客户端`);
+    }
+    // 在ready时创建客户端实例
+    client = new MclistenerWsClient(ctx, config);
     client.connect();
   });
 
   ctx.on('dispose', () => {
-    client.shutdown();
+    if (config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] 收到dispose事件，销毁WS客户端`);
+    }
+    // 在dispose时销毁客户端实例
+    if (client) {
+      client.shutdown(); // 清理内部资源（包含实例ID日志）
+      client = null;     // 清空引用，允许垃圾回收
+      if (config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] 客户端实例引用已从apply作用域中移除`);
+      }
+    }
   });
 
   // 注册中间件来处理聊天平台消息转发到服务器
   if (config.enableFowardPlatformChat) {
-    ctx.middleware((session, next) => {
+    if (config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] 注册中间件处理聊天平台消息转发`);
+    }
+    const middlewareDispose = ctx.middleware((session, next) => {
+      if (config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] 中间件收到消息: ${session.content} from ${session.platform}:${session.channelId}`);
+        logger.info(`[DEBUG] 消息详情: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
+      }
+
+      // 检查客户端是否存在
+      if (!client) {
+        if (config.verboseConsoleOutput) {
+          logger.info(`[DEBUG] 客户端实例不存在，跳过处理`);
+        }
+        return next();
+      }
+
       // 检查是否为目标来源平台和频道
       const isSourcePlatform = config.sourcePlatformList.some(
         (source) => source.platform === session.platform && source.channelId === session.channelId
       );
 
       if (!isSourcePlatform) {
+        if (config.verboseConsoleOutput) {
+          logger.info(`[DEBUG] 不是目标来源平台，跳过处理`);
+        }
         return next(); // 不是来源平台，继续处理其他中间件
       }
 
-      // 排除机器人自己的消息
-      if (config.excludeBotMessages && session.userId === session.bot.selfId) {
-        return next();
+      // 排除机器人自己的消息 - 多重检查
+      if (config.excludeBotMessages) {
+        const isBotMessage = session.userId === session.bot.selfId || 
+                           session.author?.userId === session.bot.selfId ||
+                           session.author?.nickname?.includes('bot') ||
+                           session.author?.nickname?.includes('机器人');
+        
+        if (isBotMessage) {
+          if (config.verboseConsoleOutput) {
+            logger.info(`[DEBUG] 排除机器人消息: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
+          }
+          return next();
+        }
       }
 
       // 检查前缀
@@ -142,14 +196,28 @@ export function apply(ctx: Context, config: any) {
           session.content.startsWith(prefix)
         );
         if (!hasPrefix) {
+          if (config.verboseConsoleOutput) {
+            logger.info(`[DEBUG] 消息不符合前缀要求，跳过转发`);
+          }
           return next();
         }
       }
 
+      if (config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] 准备转发消息到服务器`);
+      }
       // 转发消息到服务器
       client.forwardPlatformMessageToServer(session);
       
       return next(); // 继续处理其他中间件
+    });
+
+    // 在插件dispose时清理中间件
+    ctx.on('dispose', () => {
+      if (config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] 清理中间件`);
+      }
+      middlewareDispose();
     });
   }
 }
@@ -158,14 +226,34 @@ class MclistenerWsClient {
   private ws: WebSocket | null = null;
   private isConnecting = false;
   private reconnectTimer: NodeJS.Timeout | null = null;
+  private instanceId: string;
+  private isDisposed = false; // 新增：标记实例是否已被disposed
 
-  constructor(private ctx: Context, private config: any) {}
+  constructor(private ctx: Context, private config: any) {
+    this.instanceId = Math.random().toString(36).substring(7);
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] 创建WS客户端实例: ${this.instanceId}`);
+    }
+  }
 
   public connect() {
+    if (this.isDisposed) {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 实例已disposed，跳过连接`);
+      }
+      return;
+    }
+    
     if (this.isConnecting || this.ws?.readyState === WebSocket.OPEN) {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 跳过连接: isConnecting=${this.isConnecting}, readyState=${this.ws?.readyState}`);
+      }
       return;
     }
     this.isConnecting = true;
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] [${this.instanceId}] 开始连接到WS服务器`);
+    }
     logger.info(`尝试连接到 WS 服务器: ${this.config.wsServerUrl}`);
 
     try {
@@ -179,8 +267,15 @@ class MclistenerWsClient {
   }
 
   private setupListeners() {
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] [${this.instanceId}] 设置WS事件监听器`);
+    }
+
     this.ws.onopen = () => {
       this.isConnecting = false;
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] WS连接已打开`);
+      }
       logger.success('成功连接到 WS 服务器');
       if (this.reconnectTimer) {
         clearInterval(this.reconnectTimer);
@@ -195,11 +290,17 @@ class MclistenerWsClient {
     };
 
     this.ws.onmessage = (event) => {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 收到WS消息: ${event.data}`);
+      }
       this.handleMessage(event.data as string);
     };
 
     this.ws.onclose = (event) => {
       this.isConnecting = false;
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] WS连接关闭事件: code=${event.code}, reason=${event.reason}`);
+      }
       logger.warn(`WS 连接已关闭，代码: ${event.code}, 原因: ${event.reason}`);
       
       if (this.config.enablePrivateReport) {
@@ -212,6 +313,9 @@ class MclistenerWsClient {
     };
 
     this.ws.onerror = (error) => {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] WS连接错误: ${JSON.stringify(error)}`);
+      }
       logger.error(`WS 连接错误: ${JSON.stringify(error)}`);
       
       if (this.config.enablePrivateReport) {
@@ -223,10 +327,31 @@ class MclistenerWsClient {
   }
 
   private scheduleReconnect() {
-    if (this.reconnectTimer) return;
+    if (this.isDisposed) {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 实例已disposed，取消重连`);
+      }
+      return;
+    }
+    
+    if (this.reconnectTimer) {
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 重连定时器已存在，跳过创建`);
+      }
+      return;
+    }
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] [${this.instanceId}] 设置重连定时器`);
+    }
     logger.info('5s 后尝试重连...');
     this.reconnectTimer = setTimeout(() => {
-      this.connect();
+      if (!this.isDisposed) {
+        this.connect();
+      } else {
+        if (this.config.verboseConsoleOutput) {
+          logger.info(`[DEBUG] [${this.instanceId}] 重连定时器触发时实例已disposed，取消重连`);
+        }
+      }
       this.reconnectTimer = null;
     }, 5000);
   }
@@ -235,6 +360,10 @@ class MclistenerWsClient {
     try {
       const data = JSON.parse(message);
       const { type, player_name, content } = data;
+
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 处理消息: type=${type}, player=${player_name}, content=${content}`);
+      }
 
       let msg = '';
       if (type === 'player_join' && this.config.enableForwardPlayerJoin) {
@@ -270,6 +399,10 @@ class MclistenerWsClient {
 
       if ( this.config.enableAddDateTimePrefix ) 
         msg = `[${new Date().toLocaleString()}]\n\n${msg}`;
+
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 准备发送消息: ${msg}`);
+      }
       this.sendMessageToChannels(msg);
     } catch (e) {
       logger.error(`消息处理失败: ${e.message}`);
@@ -288,6 +421,10 @@ class MclistenerWsClient {
       const platformName = session.platform;
       const channelName = session.channelId;
       const nickname = session.author?.nickname || session.author?.username || session.username || '未知用户';
+
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 转发平台消息: platform=${platformName}, channel=${channelName}, user=${nickname}`);
+      }
 
       // let messageContent = session.content;
       let messageContent = '';
@@ -322,6 +459,10 @@ class MclistenerWsClient {
         nickname: nickname,
         message: messageContent
       };
+
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 发送WS消息: ${JSON.stringify(wsMessage)}`);
+      }
 
       this.ws.send(JSON.stringify(wsMessage));
       logger.info(`转发平台消息到服务器: [${platformName}] ${nickname}: ${messageContent}`);
@@ -362,13 +503,31 @@ class MclistenerWsClient {
   }
 
   public shutdown() {
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] [${this.instanceId}] 开始销毁WS客户端实例`);
+    }
+    
+    // 标记为已销毁
+    this.isDisposed = true;
+    
+    // 清理重连定时器
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 已清理重连定时器`);
+      }
     }
+    
+    // 关闭WebSocket连接
     if (this.ws) {
       this.ws.close();
-      logger.info('已关闭 WebSocket 连接');
+      this.ws = null;
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 已关闭WebSocket连接`);
+      }
     }
+    
+    logger.info(`[${this.instanceId}] WS客户端实例已销毁`);
   }
 }
