@@ -256,6 +256,12 @@ class MclistenerWsClient {
             return;
           }
         }
+        if (this.config.enableSenderBlacklistCheck) {
+          const senderBlacklistMatch = this.config.senderBlacklistList.some((name) => player_name === name);
+          if (senderBlacklistMatch) {
+            logger.info(`忽略黑名单玩家的消息: ${player_name}: ${content}`);
+            return;
+          }
         msg = this.config.customizePlayerChatMsg
           .replace('%PLAYER%', player_name)
           .replace('%CONTENT%', content);
