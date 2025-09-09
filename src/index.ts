@@ -82,6 +82,12 @@ export const Config = Schema.intersect([
     fowardMsgPrefixBlacklistList: Schema.array(String)
       .default(['/'])
       .description('聊天消息前缀黑名单列表，启用前缀黑名单检查后生效 <br> 默认值是/ 斜杠，当然你也可以设置多个'),
+    enableSenderBlacklistCheck: Schema.boolean()
+      .default(false)
+      .description('启用发送者黑名单检查，阻止转发指定玩家的聊天消息 <br> 比如你不想让某个玩家的消息转发到群里面，就可以把他拉黑'),
+    senderBlacklistList: Schema.array(String)
+      .default(['Server'])
+      .description('发送者黑名单列表，启用发送者黑名单检查后生效 <br> 默认值是Server，这样的好处是: 比如管理员服务器后台console执行指令， 那么Server用户就会输出：Command: /execute at @p run tellraw @a "Bye VincentZyu"'),
   }).description('转发 服务器玩家聊天信息 到 聊天平台 配置'),
   Schema.object({
     enableFowardPlatformChat: Schema.boolean() 
