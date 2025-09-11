@@ -34,6 +34,7 @@ export const Config = Schema.intersect([
       Schema.object({
         platform: Schema.string().description('平台名称'),
         channelId: Schema.string().description('频道 ID'),
+        enable: Schema.boolean().description('是否启用'),
       })
     ).role('table').description('目标平台频道列表'),
   }).description('转发 目的地 配置'),
@@ -43,6 +44,7 @@ export const Config = Schema.intersect([
       Schema.object({
         platform: Schema.string().description('平台名称'),
         channelId: Schema.string().description('频道 ID'),
+        enable: Schema.boolean().description('是否启用'),
       })
     ).role('table').description('来源平台频道列表'),
   }).description('转发 聊天平台信息 到 服务器 配置'),
@@ -164,14 +166,20 @@ export function apply(ctx: Context, config: any) {
       }
 
       // 检查是否为目标来源平台和频道
-      const isSourcePlatform = config.sourcePlatformList.some(
+      // const isSourcePlatform = config.sourcePlatformList.some(
+      //   (source) => source.platform === session.platform && source.channelId === session.channelId
+      // );
+      const matchedSource = config.sourcePlatformList.find(
         (source) => source.platform === session.platform && source.channelId === session.channelId
       );
 
-      if (!isSourcePlatform) {
-        if (config.verboseConsoleOutput) {
-          logger.info(`[DEBUG] 不是目标来源平台，跳过处理`);
-        }
+      if ( matchedSource && matchedSource.enable===false ){
+        config.verboseConsoleOutput && logger.info(`[DEBUG] 是目标平台，但未启用，跳过处理`);
+        return next(); // 不是来源平台，继续处理其他中间件
+      }
+
+      if (!matchedSource) {
+        config.verboseConsoleOutput && logger.info(`[DEBUG] 不是目标来源平台，跳过处理`);
         return next(); // 不是来源平台，继续处理其他中间件
       }
 
@@ -475,6 +483,7 @@ class MclistenerWsClient {
   private async sendMessageToChannels(message: string) {
     for (const bot of this.ctx.bots) {
       for (const target of this.config.targetPlatformChannelList) {
+        if ( target.enable === false ) continue;
         if (bot.platform === target.platform) {
           try {
             await bot.sendMessage(target.channelId, message);
