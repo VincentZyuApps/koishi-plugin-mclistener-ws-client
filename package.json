@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-mclistener-ws-client",
   "description": "对接mcdr插件，群服互通用，作为ws客户端",
-  "version": "0.0.3-beta4",
+  "version": "0.1.0-beta1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
