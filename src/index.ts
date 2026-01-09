@@ -5,7 +5,7 @@ import { MclistenerWsClient } from './client';
 
 export const name = 'mclistener-ws-client';
 
-exports.reusable = true; // 声明可重用
+export const reusable = true; // 声明此插件可重用
 
 export const inject = {
   required: ['http'],
