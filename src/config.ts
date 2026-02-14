@@ -11,12 +11,24 @@ export const Config = Schema.intersect([
   Schema.object({
     enablePrivateReport: Schema.boolean()
       .default(false)
-      .description('启用私聊报告. 如果启用，那么ws的断开和链接将不会发到群里，而是私聊发送给指定的人'),
+      .description('启用私聊报告. 如果启用，WS的断开/连接等事件将私聊发送给指定的人'),
     privateReportUserIdList: Schema.array(Schema.object({
       platform: Schema.string().description('平台名称'),
       userId: Schema.string().description('用户 ID'),
+      enable: Schema.boolean().default(true).description('是否启用'),
     })).role('table').description('私聊报告用户 ID 列表'),
-  }).description('私聊报告配置'),
+    enableChannelReport: Schema.boolean()
+      .default(false)
+      .description('启用频道报告. 如果启用，WS的断开/连接等事件将发送到指定的频道'),
+    reportChannelList: Schema.array(Schema.object({
+      platform: Schema.string().description('平台名称'),
+      channelId: Schema.string().description('频道 ID'),
+      enable: Schema.boolean().default(true).description('是否启用'),
+    })).role('table').description('报告频道列表'),
+    enableConsoleLogReport: Schema.boolean()
+      .default(true)
+      .description('启用日志报告. 如果启用，WS连接/断开/重连等事件将通过 ctx.logger.info() 打印到控制台'),
+  }).description('报告配置'),
 
   Schema.object({
     enableAddDateTimePrefix: Schema.boolean()

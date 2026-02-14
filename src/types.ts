@@ -2,12 +2,22 @@ export interface PluginConfig {
   // WS配置
   wsServerUrl: string;
 
-  // 私聊报告配置
+  // 报告配置
   enablePrivateReport: boolean;
   privateReportUserIdList: Array<{
     platform: string;
     userId: string;
+    enable: boolean;
   }>;
+  enableChannelReport: boolean;
+  reportChannelList: Array<{
+    platform: string;
+    channelId: string;
+    enable: boolean;
+  }>;
+
+  // 日志报告配置
+  enableConsoleLogReport: boolean;
 
   // 转发目的地配置
   enableAddDateTimePrefix: boolean;

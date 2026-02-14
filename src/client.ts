@@ -73,11 +73,7 @@ export class MclistenerWsClient {
       }
       
       const connectMsg = `[mclistener-ws-client]\n成功连接到WS: ${this.config.wsServerUrl}`;
-      if (this.config.enablePrivateReport) {
-        this.messageHandler.sendPrivateMessages(connectMsg);
-      } else {
-        this.messageHandler.sendMessageToChannels(connectMsg);
-      }
+      this.sendReport(connectMsg);
     };
 
     this.ws!.onmessage = (event) => {
@@ -94,12 +90,8 @@ export class MclistenerWsClient {
       }
       logger.warn(`WS 连接已关闭，代码: ${event.code}, 原因: ${event.reason}`);
       
-      const disconnectMsg = `[mclistener-ws-client]\nWS连接已断开，正在尝试重连...`;
-      if (this.config.enablePrivateReport) {
-        this.messageHandler.sendPrivateMessages(disconnectMsg);
-      } else {
-        this.messageHandler.sendMessageToChannels(disconnectMsg);
-      }
+      const disconnectMsg = `[mclistener-ws-client]\nWS连接已断开 (服务器: ${this.config.wsServerUrl})，正在尝试重连...`;
+      this.sendReport(disconnectMsg);
       
       this.scheduleReconnect();
     };
@@ -110,12 +102,8 @@ export class MclistenerWsClient {
       }
       logger.error(`WS 连接错误: ${JSON.stringify(error)}`);
       
-      const errorMsg = `[mclistener-ws-client]\nWS连接发生错误: ${JSON.stringify(error)}`;
-      if (this.config.enablePrivateReport) {
-        this.messageHandler.sendPrivateMessages(errorMsg);
-      } else {
-        this.messageHandler.sendMessageToChannels(errorMsg);
-      }
+      const errorMsg = `[mclistener-ws-client]\nWS连接发生错误 (服务器: ${this.config.wsServerUrl}): ${JSON.stringify(error)}`;
+      this.sendReport(errorMsg);
     };
   }
 
@@ -137,7 +125,10 @@ export class MclistenerWsClient {
     if (this.config.verboseConsoleOutput) {
       logger.info(`[DEBUG] [${this.instanceId}] 设置重连定时器`);
     }
-    logger.info('5s 后尝试重连...');
+    const reconnectMsg = `[mclistener-ws-client]\n5s 后尝试重连 WS 服务器: ${this.config.wsServerUrl}`;
+    if (this.config.enableConsoleLogReport) {
+      logger.info(reconnectMsg);
+    }
     
     this.reconnectTimer = setTimeout(() => {
       if (!this.isDisposed) {
@@ -149,6 +140,21 @@ export class MclistenerWsClient {
       }
       this.reconnectTimer = null;
     }, 5000);
+  }
+
+  /**
+   * 统一发送报告消息（console / 私聊 / 指定频道，各自独立判断）
+   */
+  private sendReport(msg: string): void {
+    if (this.config.enableConsoleLogReport) {
+      logger.info(msg);
+    }
+    if (this.config.enablePrivateReport) {
+      this.messageHandler.sendPrivateMessages(msg);
+    }
+    if (this.config.enableChannelReport) {
+      this.messageHandler.sendReportToChannels(msg);
+    }
   }
 
   private handleMessage(message: string): void {

@@ -175,12 +175,32 @@ export class MessageHandler {
   public async sendPrivateMessages(message: string): Promise<void> {
     for (const bot of this.ctx.bots) {
       for (const target of this.config.privateReportUserIdList) {
+        if (target.enable === false) continue;
         if (bot.platform === target.platform) {
           try {
             await bot.sendPrivateMessage(target.userId, message);
             logger.info(`成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
           } catch (e) {
             logger.error(`向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 发送报告消息到指定频道
+   */
+  public async sendReportToChannels(message: string): Promise<void> {
+    for (const bot of this.ctx.bots) {
+      for (const target of this.config.reportChannelList) {
+        if (target.enable === false) continue;
+        if (bot.platform === target.platform) {
+          try {
+            await bot.sendMessage(target.channelId, message);
+            logger.info(`成功向报告频道 ${target.platform}:${target.channelId} 发送消息。`);
+          } catch (e) {
+            logger.error(`向报告频道 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
           }
         }
       }
