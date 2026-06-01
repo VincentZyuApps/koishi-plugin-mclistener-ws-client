@@ -80,5 +80,5 @@ export interface PlatformToServerMessage {
   group_name: string;
   nickname: string;
   message: string;
-  images?: ImageInfo[];  // 新增：图片信息数组
+  images?: ImageInfo[];  // add：图片信息数组
 }
