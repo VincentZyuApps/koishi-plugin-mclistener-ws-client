@@ -13,6 +13,8 @@ export const inject = {
 
 export { Config };
 
+export { usage } from './usage';
+
 const logger = new Logger('mclistener-ws-client');
 
 export function apply(ctx: Context, config: PluginConfig) {

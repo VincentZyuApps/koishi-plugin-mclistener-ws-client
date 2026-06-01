@@ -156,7 +156,12 @@ export class MessageHandler {
   public async sendMessageToChannels(message: string): Promise<void> {
     for (const bot of this.ctx.bots) {
       for (const target of this.config.targetPlatformChannelList) {
-        if (target.enable === false) continue;
+        if (target.enable !== true) {
+          if (this.config.verboseConsoleOutput) {
+            logger.info(`跳过未启用的目标频道: ${target.platform}:${target.channelId}`);
+          }
+          continue;
+        }
         if (bot.platform === target.platform) {
           try {
             await bot.sendMessage(target.channelId, message);
