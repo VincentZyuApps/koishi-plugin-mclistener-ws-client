@@ -63,7 +63,7 @@ export interface PluginConfig {
 }
 
 export interface McServerMessage {
-  type: 'player_join' | 'player_leave' | 'player_msg';
+  type: 'player_join' | 'player_leave' | 'player_chat';
   player_name: string;
   content?: string;
 }

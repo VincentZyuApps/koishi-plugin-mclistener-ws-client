@@ -27,7 +27,7 @@ export class MessageHandler {
         msg = this.config.customizePlayerJoinMsg.replace('%PLAYER%', player_name);
       } else if (type === 'player_leave' && this.config.enableForwardPlayerLeave) {
         msg = this.config.customizePlayerLeaveMsg.replace('%PLAYER%', player_name);
-      } else if (type === 'player_msg' && this.config.enableForwardPlayerChat) {
+      } else if (type === 'player_chat' && this.config.enableForwardPlayerChat) {
         // 白名单检查
         if (this.config.enableFowardMsgPrefixWhitelistCheck) {
           const prefixWhitelistMatch = this.config.fowardMsgPrefixWhitelistList.some(

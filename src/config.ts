@@ -8,7 +8,7 @@ export const Config = Schema.intersect([
   Schema.object({
     wsServerUrl: Schema.string()
       .role('link')
-      .default('ws://localhost:8765')
+      .default('ws://127.0.0.1:60601')
       .description('🌐 WS服务器地址（你的 Minecraft 服务端 WebSocket 地址哦~）'),
   }).description('🌐 WebSocket 连接配置（连不上服务器？检查这里！）'),
 
@@ -48,9 +48,13 @@ export const Config = Schema.intersect([
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
         channelId: Schema.string().description('🆔 频道 ID（转发到哪个群/频道）'),
-        enable: Schema.boolean().description('✅ 是否启用'),
+        enable: Schema.boolean().default(true).description('✅ 是否启用'),
       })
-    ).role('table').description('🎯 目标平台频道列表（服务器消息要转发到哪些地方？）'),
+    ).role('table').default([{
+      platform: 'onebot',
+      channelId: '1085190201',
+      enable: true,
+    }]).description('🎯 目标平台频道列表（服务器消息要转发到哪些地方？）'),
   }).description('📤 转发目的地配置【服务器 → 聊天平台】'),
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -61,9 +65,13 @@ export const Config = Schema.intersect([
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
         channelId: Schema.string().description('🆔 频道 ID（哪个群的聊天要发到服务器）'),
-        enable: Schema.boolean().description('✅ 是否启用'),
+        enable: Schema.boolean().default(true).description('✅ 是否启用'),
       })
-    ).role('table').description('📡 来源平台频道列表（哪些聊天要转发到服务器？）'),
+    ).role('table').default([{
+      platform: 'onebot',
+      channelId: '1085190201',
+      enable: true,
+    }]).description('📡 来源平台频道列表（哪些聊天要转发到服务器？）'),
   }).description('📥 来源平台配置【聊天平台 → 服务器】'),
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -101,7 +109,7 @@ export const Config = Schema.intersect([
       .default('🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%')
       .description('✏️ 自定义玩家聊天消息 📝<br>🔤 %PLAYER% → 玩家名称，%CONTENT% → 聊天内容'),
     enableFowardMsgPrefixWhitelistCheck: Schema.boolean()
-      .default(true)
+      .default(false)
       .description('⚪ 启用聊天消息前缀白名单检查 ✅<br>💡 只转发指定前缀的聊天消息<br>📌 比如不想让服里所有聊天都刷到群里，可以告诉玩家用 "!!" 开头才会转发'),
     fowardMsgPrefixWhitelistList: Schema.array(String)
       .default(['!!'])
