@@ -1,6 +1,6 @@
 {
   "name": "koishi-plugin-mclistener-ws-client",
-  "description": "对接mcdr插件，群服互通用，作为ws客户端",
+  "description": "🌐🎮💬🔌📡 Koishi WebSocket client plugin for bridging Minecraft server chat and chat platforms via an MCDR WebSocket server plugin, with bidirectional relay and configurable notifications.",
   "version": "0.1.3-beta.1",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
