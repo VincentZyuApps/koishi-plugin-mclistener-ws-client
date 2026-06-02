@@ -31,6 +31,15 @@ export const usage = `
 
 <hr>
 
+<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin:12px 0">
+  <strong>⚠️ 前置条件：启用 RCON</strong>
+  <p style="margin:8px 0 0 0">
+    图片渲染（<code>!!view_image</code>）和远程命令执行功能，需要 Minecraft 服务器启用 RCON。
+    <br>
+    📖 详见 <a href="https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon" target="_blank">服务端插件 RCON 配置文档</a>
+  </p>
+</div>
+
 <details>
 <summary><h2>📖 插件详细说明（点击展开）</h2></summary>
 
@@ -41,6 +50,7 @@ export const usage = `
 <ul>
   <li>作为 WebSocket 客户端连接 MCDR 端的 WebSocket 服务端</li>
   <li>支持自动重连，连接状态可通知到私聊/频道/控制台</li>
+  <li>🔑 支持 Token 认证，连接时需与服务端 Token 匹配</li>
 </ul>
 
 <h3>📤 双向消息转发</h3>

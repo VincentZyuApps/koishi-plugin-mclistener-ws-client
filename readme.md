@@ -46,6 +46,18 @@
 
 ---
 
+## ⚠️ 前置条件：启用 RCON
+
+以下核心功能**必须**启用 RCON 才能使用：
+- 🖼️ **游戏内展示外部图片**（`!!view_image` 命令 + 图片消息渲染）
+- 🖥️ **远程命令执行**（从聊天平台执行 MC 服务器命令并返回结果）
+
+> 如果你只需要基础的文字消息转发和进出服通知，可以跳过此步骤。
+>
+> 📖 详见服务器端插件文档：[RCON 配置步骤](https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon)
+
+---
+
 ## ✨ 功能
 
 ### 🌐 WebSocket 连接
@@ -197,12 +209,6 @@ yarn add koishi-plugin-mclistener-ws-client
 | `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513） |
 | `execCommandTimeoutMs` | `10000` | 命令执行超时时间（毫秒） |
 | `execCommandMaxReplyLength` | `1500` | 回复最大字符数 |
-
-> ⚠️ **前置条件：启用 RCON**
->
-> 远程命令执行功能依赖 Minecraft 服务器的 RCON 接口。使用前请确保：
-> 1. **Minecraft 服务器**：在 `server.properties` 中设置 `enable-rcon=true` 并配置好 `rcon.port` 和 `rcon.password`
-> 2. **MCDR 主配置文件**：在 MCDR 的 `config.yml` 中配置 RCON（插件通过 MCDR 的 RCON 接口执行命令），配置项为 `rcon.enable: true`、`rcon.port: 25575`、`rcon.password: 你的RCON密码`
 
 ### 🐛 调试配置
 
