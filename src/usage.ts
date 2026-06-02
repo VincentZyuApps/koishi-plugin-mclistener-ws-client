@@ -75,6 +75,7 @@ export const usage = `
   <li><b>服务器 → 聊天平台</b>：玩家在服里聊天自动同步到 QQ/Discord 群</li>
   <li><b>聊天平台 → 服务器</b>：群里发的消息自动转发到游戏内</li>
   <li>支持多平台多频道同时转发</li>
+  <li>⚠️ 当前仅处理文本、@提及、图片，其他元素退化为占位文本</li>
 </ul>
 
 <h3>🚪 玩家进出通知</h3>
@@ -87,7 +88,7 @@ export const usage = `
 <h3>💬 消息过滤</h3>
 <table>
   <tr><th>过滤方式</th><th>说明</th></tr>
-  <tr><td>✅ 白名单前缀</td><td>只转发指定前缀的消息（如 <code>!!</code>）</td></tr>
+  <tr><td>✅ 白名单前缀</td><td>只转发指定前缀的消息（如 <code>#</code>）</td></tr>
   <tr><td>❌ 黑名单前缀</td><td>阻止转发指定前缀的消息（如 <code>/</code> 命令）</td></tr>
   <tr><td>🚫 发送者黑名单</td><td>阻止转发指定玩家的消息</td></tr>
   <tr><td>🔍 平台消息前缀检查</td><td>只转发群里指定前缀的消息到服务器</td></tr>
@@ -120,6 +121,23 @@ export const usage = `
   <tr><td>🔐 远程命令执行</td><td>远程 MC 命令 + 白名单 + 超时控制</td></tr>
   <tr><td>🐛 调试</td><td>详细日志输出</td></tr>
 </table>
+
+<h3>🖥️ 远程命令执行</h3>
+<ul>
+  <li>默认指令名: <code>mcws.exec</code>（可通过 <code>execCommandName</code> 配置修改）</li>
+  <li>使用示例: 在聊天平台发送 <code>mcws.exec list</code></li>
+  <li>需同时开启客户端 <code>enableExecCommand</code> 和服务端 <code>enable_remote_exec_command</code></li>
+  <li>默认仅白名单用户可执行（通过 <code>execCommandAdminUserIdList</code> 配置）</li>
+</ul>
+
+<h3>⚠️ 已知限制</h3>
+<ul>
+  <li>图片 URL 的域名必须在服务端 <code>image_host_whitelist</code> 中</li>
+  <li><code>!!view_image</code> 有全服共享冷却（默认 5.5 秒）</li>
+  <li>非文本消息元素（表情、卡片、文件等）会退化为 <code>&lt;元素类型&gt;</code> 占位文本</li>
+  <li>昵称含 <code>bot</code> 或 <code>机器人</code> 的用户消息可能被 <code>excludeBotMessages</code> 误排除</li>
+  <li>远程命令需同时开启客户端和服务端的配置</li>
+</ul>
 
 </details>
 

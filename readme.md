@@ -29,6 +29,30 @@
 
 ---
 
+## 🚀 3 分钟快速上手
+
+### Step 1: 配置服务端（MCDR 插件）
+
+1. 将 `mcdr_listener_ws_server` 放入 MCDR 插件目录，安装依赖(具体配置流程参考MCDR插件文档: https://github.com/VincentZyuApps/mcdr_listener_ws_server)
+2. 加载插件，编辑生成的 `/path-to-mcdr-root/config/mcdr_listener_ws_server/config.yml`
+3. 修改 `ws_token` 为你自己的密码（客户端需保持一致）
+
+### Step 2: 配置本插件（Koishi）
+
+1. 在 Koishi 插件市场 或者 使用 `npm/yarn` 安装 `mclistener-ws-client`
+2. 配置 `wsServerUrl` 指向服务端 WebSocket 地址（默认 `ws://127.0.0.1:60601`）
+3. 配置 `wsToken` 与服务端 `ws_token` 一致
+4. 配置 `sourcePlatformList` 和 `targetPlatformChannelList` 为你的群/频道
+
+### Step 3: 验证互通
+
+- 在群里发消息 → 检查游戏内是否收到
+- 在游戏里说话 → 检查群里是否收到
+
+> 💡 图片渲染和远程命令需要额外配置 RCON，见下方 [前置条件](#️-前置条件启用-rcon)。
+
+---
+
 ## 📸 效果预览
 
 ### **→ MC 服务器 → 聊天平台**
@@ -126,6 +150,21 @@ yarn add koishi-plugin-mclistener-ws-client
 
 ## ⚙️ 配置
 
+### 最小可用配置
+
+```yaml
+wsServerUrl: ws://你的服务器IP:60601
+wsToken: 你的Token
+sourcePlatformList:
+  - platform: onebot
+    channelId: 你的QQ群号
+    enable: true
+targetPlatformChannelList:
+  - platform: onebot
+    channelId: 你的QQ群号
+    enable: true
+```
+
 ### 💬 消息设置
 
 | 配置项 | 默认值 | 说明 |
@@ -163,6 +202,8 @@ yarn add koishi-plugin-mclistener-ws-client
 | `stripMessageWhitespace` | `true` | 🧹 清理消息中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 |
 | `sourcePlatformList` | `[{onebot, 1085190201}]` | 来源平台频道列表（默认监听 onebot 群 1085190201） |
 
+> ℹ️ 当前转发到服务端的 `group_name` 填入的是平台标识（如 `onebot`、`discord`），并非真实群名/频道名。真实来源 ID 在 `group_id` 字段。
+
 ### 🚪 玩家加入消息转发
 
 | 配置项 | 默认值 | 说明 |
@@ -197,7 +238,9 @@ yarn add koishi-plugin-mclistener-ws-client
 | `enableFowardPlatformChat` | `true` | 启用转发平台消息到服务器 |
 | `platformChatPrefixCheck` | `false` | 启用平台消息前缀检查 |
 | `platformChatPrefixList` | `['#']` | 平台消息前缀列表 |
-| `excludeBotMessages` | `true` | 排除机器人自己发送的消息 |
+| `excludeBotMessages` | `true` | 排除机器人自己发送的消息 ⚠️ 判定逻辑包含昵称子串匹配：昵称中包含 `bot` 或 `机器人` 的用户也会被排除，如有误杀请关闭此选项 |
+
+> ⚠️ **富文本支持范围**: 当前仅处理文本、@提及（转为 `<at @userId>`）、图片（转为 `<img:N>` + images 数组）。其他平台特有消息元素（如表情、卡片、文件等）会退化为 `<元素类型>` 占位文本。
 
 ### 🔐 远程命令执行配置
 
@@ -209,6 +252,23 @@ yarn add koishi-plugin-mclistener-ws-client
 | `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513） |
 | `execCommandTimeoutMs` | `10000` | 命令执行超时时间（毫秒） |
 | `execCommandMaxReplyLength` | `1500` | 回复最大字符数 |
+
+## 🖥️ 命令
+
+### `mcws.exec <cmd>`
+
+在 MC 服务器上远程执行命令，结果回传到聊天平台。
+
+- **默认指令名**: `mcws.exec`（可通过 `execCommandName` 配置修改）
+- **使用示例**: `mcws.exec list`
+- **权限控制**: 默认仅白名单用户可执行（`enableExecCommandWhitelist`），白名单通过 `execCommandAdminUserIdList` 配置
+- **前置条件**:
+  - 客户端: `enableExecCommand` 设为 `true`
+  - 服务端: `enable_remote_exec_command` 设为 `true`
+  - 服务端: RCON 已启用（见 [RCON 配置](#️-前置条件启用-rcon)）
+- **输出**: 超过 `execCommandMaxReplyLength`（默认 1500 字符）的结果会被截断
+
+---
 
 ### 🐛 调试配置
 
@@ -242,3 +302,22 @@ yarn add koishi-plugin-mclistener-ws-client
 > - 插件初始化时的完整配置 dump
 > - ready / dispose 事件触发时序
 > - 中间件注册与清理过程
+
+---
+
+## ⚠️ 一些已知限制
+
+- **图片域名白名单**: 图片 URL 的域名必须在服务端 `image_host_whitelist` 中，否则不会下载/渲染
+- **全服冷却**: `!!view_image` 有全服共享冷却（默认 5.5 秒），冷却期间其他玩家无法使用
+- **富文本降级**: 非文本消息元素（表情、卡片、文件等）会退化为 `<元素类型>` 占位文本，无法保留原样式
+- **远程命令需双边开启**: 需要同时开启客户端 `enableExecCommand` 和服务端 `enable_remote_exec_command`
+- **编码问题**: Windows 下 MCDR 建议将 encoding 设为 GBK，避免 emoji 编码问题
+- **Bot 误杀**: 昵称包含 `bot` 或 `机器人` 的用户消息可能被 `excludeBotMessages` 误排除
+
+### 📌 部分技术细节
+
+- **重连间隔**: 断开后固定 5 秒自动重连
+- **多实例**: 插件声明 `reusable`，支持在 Koishi 中配置多个实例对接多台服务器
+- **依赖**: 需要 Koishi 的 `http` 服务（通常由 `@koishijs/plugin-http` 提供）
+- **Token 传递**: `wsToken` 通过 WebSocket URL 的 query 参数 `?token=xxx` 传递
+- **条目独立开关**: 配置列表（如 `sourcePlatformList`）中的每个条目都有独立的 `enable` 开关
