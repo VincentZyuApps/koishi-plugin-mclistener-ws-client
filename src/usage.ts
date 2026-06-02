@@ -31,12 +31,29 @@ export const usage = `
 
 <hr>
 
-<div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px 16px;margin:12px 0">
+<style>
+  .rcon-alert {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: #333;
+  }
+  @media (prefers-color-scheme: dark) {
+    .rcon-alert {
+      background: #3a3000;
+      border-color: #8b7000;
+      color: #ffd700;
+    }
+  }
+</style>
+<div class="rcon-alert">
   <strong>⚠️ 前置条件：启用 RCON</strong>
   <p style="margin:8px 0 0 0">
     图片渲染（<code>!!view_image</code>）和远程命令执行功能，需要 Minecraft 服务器启用 RCON。
     <br>
-    📖 详见 <a href="https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon" target="_blank">服务端插件 RCON 配置文档</a>
+    📖 详见 <a href="https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon" target="_blank">## 服务端MCDR插件 RCON配置文档</a>
   </p>
 </div>
 

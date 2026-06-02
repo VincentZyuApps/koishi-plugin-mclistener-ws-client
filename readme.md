@@ -54,7 +54,7 @@
 
 > 如果你只需要基础的文字消息转发和进出服通知，可以跳过此步骤。
 >
-> 📖 详见服务器端插件文档：[RCON 配置步骤](https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon)
+> 📖 详见服务器端MCDR插件文档：[## RCON 配置步骤](https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon)
 
 ---
 
