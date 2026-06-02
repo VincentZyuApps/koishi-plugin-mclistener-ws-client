@@ -15,7 +15,7 @@ export const usage = `
     <img src="https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white" alt="Gitee">
   </a>
   <a href="https://qm.qq.com/q/ZN7fxZ3qCq" target="_blank">
-    <img src="https://img.shields.io/badge/QQ群-1085190201-1AAD19?style=flat-square" alt="QQ群">
+    <img src="https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white" alt="QQ群">
   </a>
 </p>
 
@@ -81,7 +81,8 @@ export const usage = `
 <h3>⚙️ 配置一览</h3>
 <table>
   <tr><th>配置分组</th><th>说明</th></tr>
-  <tr><td>🌐 WebSocket 连接</td><td>服务器地址配置</td></tr>
+  <tr><td>💬 消息设置</td><td>回复引用开关</td></tr>
+  <tr><td>🌐 WebSocket 连接</td><td>服务器地址 + Token 配置</td></tr>
   <tr><td>📊 事件报告</td><td>私聊/频道/控制台通知配置</td></tr>
   <tr><td>📤 转发目的地</td><td>服务器消息要发到哪些平台/频道</td></tr>
   <tr><td>📥 来源平台</td><td>哪些平台/频道的消息要发到服务器</td></tr>
@@ -89,6 +90,7 @@ export const usage = `
   <tr><td>🚶 玩家离开</td><td>离服通知开关 + 自定义模板</td></tr>
   <tr><td>💬 玩家聊天</td><td>聊天转发开关 + 过滤规则 + 自定义模板</td></tr>
   <tr><td>🔄 平台消息 → 服务器</td><td>聊天平台 转发到 服务器的开关 + 过滤规则</td></tr>
+  <tr><td>🔐 远程命令执行</td><td>远程 MC 命令 + 白名单 + 超时控制</td></tr>
   <tr><td>🐛 调试</td><td>详细日志输出</td></tr>
 </table>
 

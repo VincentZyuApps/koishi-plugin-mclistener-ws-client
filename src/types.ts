@@ -1,8 +1,15 @@
+// ============================================================
+// ⚙️ 插件配置接口（PluginConfig）
+// ============================================================
 export interface PluginConfig {
-  // WS配置
-  wsServerUrl: string;
+  // ---- 💬 消息设置 ----
+  enableQuote: boolean;
 
-  // 报告配置
+  // ---- 🌐 WebSocket 连接配置 ----
+  wsServerUrl: string;
+  wsToken: string;
+
+  // ---- 📊 报告配置 ----
   enablePrivateReport: boolean;
   privateReportUserIdList: Array<{
     platform: string;
@@ -15,11 +22,9 @@ export interface PluginConfig {
     channelId: string;
     enable: boolean;
   }>;
-
-  // 日志报告配置
   enableConsoleLogReport: boolean;
 
-  // 转发目的地配置
+  // ---- 📤 转发目的地配置 ----
   enableAddDateTimePrefix: boolean;
   targetPlatformChannelList: Array<{
     platform: string;
@@ -27,22 +32,22 @@ export interface PluginConfig {
     enable: boolean;
   }>;
 
-  // 转发来源配置
+  // ---- 📥 转发来源配置 ----
   sourcePlatformList: Array<{
     platform: string;
     channelId: string;
     enable: boolean;
   }>;
 
-  // 服务器玩家加入配置
+  // ---- 🚪 玩家加入消息 ----
   enableForwardPlayerJoin: boolean;
   customizePlayerJoinMsg: string;
 
-  // 服务器玩家离开配置
+  // ---- 🚶 玩家离开消息 ----
   enableForwardPlayerLeave: boolean;
   customizePlayerLeaveMsg: string;
 
-  // 服务器玩家聊天配置
+  // ---- 💬 玩家聊天消息 ----
   enableForwardPlayerChat: boolean;
   customizePlayerChatMsg: string;
   enableFowardMsgPrefixWhitelistCheck: boolean;
@@ -52,33 +57,82 @@ export interface PluginConfig {
   enableSenderBlacklistCheck: boolean;
   senderBlacklistList: string[];
 
-  // 平台聊天转发配置
+  // ---- 🔄 平台消息转发 ----
   enableFowardPlatformChat: boolean;
   platformChatPrefixCheck: boolean;
   platformChatPrefixList: string[];
   excludeBotMessages: boolean;
 
-  // 调试配置
+  // ---- 🔐 远程命令执行配置 ----
+  enableExecCommand: boolean;
+  execCommandName: string;
+  enableExecCommandWhitelist: boolean;
+  execCommandAdminUserIdList: Array<{
+    platform: string;
+    userId: string;
+    enable: boolean;
+  }>;
+  execCommandTimeoutMs: number;
+  execCommandMaxReplyLength: number;
+
+  // ---- 🐛 调试配置 ----
   verboseConsoleOutput: boolean;
 }
 
+
+
+// ============================================================
+// 📦 WebSocket 消息类型
+// ============================================================
+
+// ---- 🎮 Minecraft 服务器消息 ----
 export interface McServerMessage {
   type: 'player_join' | 'player_leave' | 'player_chat';
   player_name: string;
   content?: string;
 }
 
+export type McServerIncomingMessage = McServerMessage | CommandResultMessage;
+
+// ---- 🖼️ 图片信息 ----
 export interface ImageInfo {
   idx: number;
   url: string;
   summary?: string;
 }
 
+// ---- 📤 平台 → 服务器消息 ----
 export interface PlatformToServerMessage {
   type: 'group_to_server';
   group_id: string;
   group_name: string;
   nickname: string;
   message: string;
-  images?: ImageInfo[];  // add：图片信息数组
+  images?: ImageInfo[];
+}
+
+// ---- 👤 命令发送者 ----
+export interface CommandSender {
+  platform: string;
+  channel_id: string;
+  user_id: string;
+  nickname: string;
+}
+
+// ---- 📨 命令请求 ----
+export interface CommandRequestMessage {
+  type: 'command';
+  request_id: string;
+  command: string;
+  sender: CommandSender;
+}
+
+// ---- 📨 命令结果 ----
+export interface CommandResultMessage {
+  type: 'command_result';
+  request_id: string;
+  command: string;
+  ok: boolean;
+  result?: string;
+  error?: string;
 }

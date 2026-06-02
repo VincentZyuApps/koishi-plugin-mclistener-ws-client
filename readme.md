@@ -23,7 +23,9 @@
 
 还在手动看 Minecraft 服务器后台？还在纠结群里发的消息怎么同步到游戏里？
 
-**mclistener-ws-client** 是一个 Koishi 插件，以 WebSocket 客户端方式对接服务端的 MCDR（MCDReforged）插件，实现 **聊天平台 ↔ 服务器** 的双向消息互通。玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
+**mclistener-ws-client** 是一个 Koishi 插件，基于 WebSocket 对接服务端的 MCDR 插件，实现 **群服互通** —— 不止于文字！🎉
+
+以 WebSocket 客户端方式对接服务端的 MCDR（MCDReforged）插件，实现 **聊天平台 ↔ 服务器** 的双向消息互通。玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
 ## ✨ 功能
 
@@ -34,9 +36,9 @@
 
 ### 📤 群服双向消息转发
 
-- **服务器 → 聊天平台**：玩家在服里说话自动同步到聊天平台
-- **聊天平台 → 服务器**：群里发的消息自动转发到游戏内
-- 支持多平台多频道（QQ、Discord 等）
+- **服务器 → 聊天平台**：玩家在mc服里说话、玩家进出mc服务器事件 自动同步到聊天平台
+- **聊天平台 → 服务器**：群里发的图文消息自动转发到游戏内
+> 支持多平台多频道（QQ、Kook、Discord、Telegram 等，理论上 koishi支持的大部分主流聊天平台都能用）
 
 ### 🚪 玩家进出通知
 
@@ -71,20 +73,32 @@
 
 在 Koishi 插件市场搜索 `mclistener-ws-client` 即可安装。
 
-或使用 npm：
+或使用 npm / yarn：
 
 ```bash
 cd /path/to/koishi-app
+# 确保能看到 koishi.yml, package.json, data文件夹等等
+ls
+# 使用npm 安装
 npm install koishi-plugin-mclistener-ws-client
+# 或者使用yarn
+yarn add koishi-plugin-mclistener-ws-client
 ```
 
 ## ⚙️ 配置
+
+### 💬 消息设置
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enableQuote` | `true` | 启用回复引用，指令回复自动带引用 |
 
 ### 🌐 WebSocket 连接配置
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `wsServerUrl` | `ws://localhost:8765` | WebSocket 服务器地址 |
+| `wsServerUrl` | `ws://127.0.0.1:60601` | WebSocket 服务器地址 |
+| `wsToken` | `test12345` | WebSocket 连接 Token（空=不校验）⚠️ 建议修改默认值 |
 
 ### 📊 报告配置
 
@@ -101,13 +115,13 @@ npm install koishi-plugin-mclistener-ws-client
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `enableAddDateTimePrefix` | `true` | 转发时添加日期时间前缀 |
-| `targetPlatformChannelList` | `[]` | 目标平台频道列表 |
+| `targetPlatformChannelList` | `[{onebot, 1085190201}]` | 目标平台频道列表（默认转发到 onebot 群的 1085190201） |
 
 ### 📥 来源平台配置（聊天平台 → 服务器）
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `sourcePlatformList` | `[]` | 来源平台频道列表 |
+| `sourcePlatformList` | `[{onebot, 1085190201}]` | 来源平台频道列表（默认监听 onebot 群 1085190201） |
 
 ### 🚪 玩家加入消息转发
 
@@ -129,10 +143,10 @@ npm install koishi-plugin-mclistener-ws-client
 |--------|--------|------|
 | `enableForwardPlayerChat` | `true` | 启用转发玩家聊天消息 |
 | `customizePlayerChatMsg` | `🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%` | 自定义聊天消息模板 |
-| `enableFowardMsgPrefixWhitelistCheck` | `true` | 启用白名单前缀检查 |
-| `fowardMsgPrefixWhitelistList` | `['!!']` | 白名单前缀列表 |
-| `enableForwardMsgPrefixBlacklistCheck` | `false` | 启用黑名单前缀检查 |
-| `fowardMsgPrefixBlacklistList` | `['/']` | 黑名单前缀列表 |
+| `enableFowardMsgPrefixWhitelistCheck` | `false` | 启用白名单前缀检查 |
+| `fowardMsgPrefixWhitelistList` | `['#']` | 白名单前缀列表 |
+| `enableForwardMsgPrefixBlacklistCheck` | `true` | 启用黑名单前缀检查 |
+| `fowardMsgPrefixBlacklistList` | `['/', '!!']` | 黑名单前缀列表 |
 | `enableSenderBlacklistCheck` | `false` | 启用发送者黑名单检查 |
 | `senderBlacklistList` | `['Server']` | 发送者黑名单列表 |
 
@@ -145,8 +159,52 @@ npm install koishi-plugin-mclistener-ws-client
 | `platformChatPrefixList` | `['#']` | 平台消息前缀列表 |
 | `excludeBotMessages` | `true` | 排除机器人自己发送的消息 |
 
+### 🔐 远程命令执行配置
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enableExecCommand` | `false` | 启用远程命令执行能力 |
+| `execCommandName` | `mcws.exec` | Koishi 指令名 |
+| `enableExecCommandWhitelist` | `true` | 启用用户白名单 |
+| `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513） |
+| `execCommandTimeoutMs` | `10000` | 命令执行超时时间（毫秒） |
+| `execCommandMaxReplyLength` | `1500` | 回复最大字符数 |
+
+> ⚠️ **前置条件：启用 RCON**
+>
+> 远程命令执行功能依赖 Minecraft 服务器的 RCON 接口。使用前请确保：
+> 1. **Minecraft 服务器**：在 `server.properties` 中设置 `enable-rcon=true` 并配置好 `rcon.port` 和 `rcon.password`
+> 2. **MCDR 主配置文件**：在 MCDR 的 `config.yml` 中配置 RCON（插件通过 MCDR 的 RCON 接口执行命令），配置项为 `rcon.enable: true`、`rcon.port: 25575`、`rcon.password: 你的RCON密码`
+
 ### 🐛 调试配置
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `verboseConsoleOutput` | `false` | 启用详细控制台调试输出 |
+
+#### 🐛 verboseConsoleOutput 调试日志输出项
+
+开启 `verboseConsoleOutput` 后，插件会在控制台输出以下调试信息：
+
+> **🔌 WebSocket 连接生命周期**
+> - 创建 / 销毁 WS 客户端实例
+> - 连接状态变化（连接中、已连接、已关闭、具体错误原因）
+> - 收到 / 发送的原始 WS 消息内容
+> - 重连定时器的设置、取消、跳过原因
+>
+> **📤 消息处理与转发**
+> - 解析到的服务器消息类型、玩家名、消息内容
+> - 准备发送到频道的消息
+> - 跳过未启用的目标频道原因
+> - 消息被白名单 / 黑名单 / 发送者黑名单拦截的详情
+>
+> **💬 平台消息中间件**
+> - 中间件收到的消息内容与来源（platform / channelId / userId）
+> - 自动排除机器人消息的判断过程
+> - 来源平台 / 频道匹配结果
+> - 前缀检查结果与是否跳过转发
+>
+> **⚙️ 插件初始化与生命周期**
+> - 插件初始化时的完整配置 dump
+> - ready / dispose 事件触发时序
+> - 中间件注册与清理过程

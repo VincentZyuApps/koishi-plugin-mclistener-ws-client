@@ -34,7 +34,7 @@ export class MessageHandler {
             (prefix) => content?.startsWith(prefix)
           );
           if (!prefixWhitelistMatch) {
-            logger.info(`忽略不符合前缀白名单的消息: ${content}`);
+            logger.info(`⚠️ 忽略不符合前缀白名单的消息: ${content}`);
             return null;
           }
         }
@@ -45,7 +45,7 @@ export class MessageHandler {
             (prefix) => content?.startsWith(prefix)
           );
           if (prefixBlacklistMatch) {
-            logger.info(`忽略符合前缀黑名单的消息: ${content}`);
+            logger.info(`🚫 忽略符合前缀黑名单的消息: ${content}`);
             return null;
           }
         }
@@ -56,7 +56,7 @@ export class MessageHandler {
             (name) => player_name === name
           );
           if (senderBlacklistMatch) {
-            logger.info(`忽略黑名单玩家的消息: ${player_name}: ${content}`);
+            logger.info(`🚫 忽略黑名单玩家的消息: ${player_name}: ${content}`);
             return null;
           }
         }
@@ -75,7 +75,7 @@ export class MessageHandler {
 
       return msg;
     } catch (e) {
-      logger.error(`消息处理失败: ${e.message}`);
+      logger.error(`❌ 消息处理失败: ${e.message}`);
       return null;
     }
   }
@@ -145,7 +145,7 @@ export class MessageHandler {
 
       return result;
     } catch (e) {
-      logger.error(`构造平台消息失败: ${e.message}`);
+      logger.error(`❌ 构造平台消息失败: ${e.message}`);
       return null;
     }
   }
@@ -158,16 +158,16 @@ export class MessageHandler {
       for (const target of this.config.targetPlatformChannelList) {
         if (target.enable !== true) {
           if (this.config.verboseConsoleOutput) {
-            logger.info(`跳过未启用的目标频道: ${target.platform}:${target.channelId}`);
+            logger.info(`⚠️ 跳过未启用的目标频道: ${target.platform}:${target.channelId}`);
           }
           continue;
         }
         if (bot.platform === target.platform) {
           try {
             await bot.sendMessage(target.channelId, message);
-            logger.info(`成功向 ${target.platform}:${target.channelId} 发送消息。`);
+            logger.info(`📢 成功向 ${target.platform}:${target.channelId} 发送消息。`);
           } catch (e) {
-            logger.error(`向 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
+            logger.error(`❌ 向 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
           }
         }
       }
@@ -184,9 +184,9 @@ export class MessageHandler {
         if (bot.platform === target.platform) {
           try {
             await bot.sendPrivateMessage(target.userId, message);
-            logger.info(`成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
+            logger.info(`💌 成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
           } catch (e) {
-            logger.error(`向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
+            logger.error(`❌ 向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
           }
         }
       }
@@ -203,9 +203,9 @@ export class MessageHandler {
         if (bot.platform === target.platform) {
           try {
             await bot.sendMessage(target.channelId, message);
-            logger.info(`成功向报告频道 ${target.platform}:${target.channelId} 发送消息。`);
+            logger.info(`📡 成功向报告频道 ${target.platform}:${target.channelId} 发送消息。`);
           } catch (e) {
-            logger.error(`向报告频道 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
+            logger.error(`❌ 向报告频道 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
           }
         }
       }

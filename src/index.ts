@@ -2,6 +2,7 @@ import { Context, Logger } from 'koishi';
 import { Config } from './config';
 import { PluginConfig } from './types';
 import { MclistenerWsClient } from './client';
+import { registerCommands } from './command';
 
 export const name = 'mclistener-ws-client';
 
@@ -28,10 +29,13 @@ export function apply(ctx: Context, config: PluginConfig) {
     if (config.verboseConsoleOutput) {
       logger.info(`[DEBUG] 收到ready事件，创建并连接WS客户端`);
     }
-    // 在ready时创建客户端实例
     client = new MclistenerWsClient(ctx, config);
     client.connect();
   });
+
+  if (config.enableExecCommand) {
+    registerCommands(ctx, config, () => client);
+  }
 
   ctx.on('dispose', () => {
     if (config.verboseConsoleOutput) {
@@ -54,14 +58,14 @@ export function apply(ctx: Context, config: PluginConfig) {
     }
     const middlewareDispose = ctx.middleware((session, next) => {
       if (config.verboseConsoleOutput) {
-        logger.info(`[DEBUG] 中间件收到消息: ${session.content} from ${session.platform}:${session.channelId}`);
+        logger.info(`[DEBUG] 📨 中间件收到消息: ${session.content} from ${session.platform}:${session.channelId}`);
         logger.info(`[DEBUG] 消息详情: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
       }
 
       // 检查客户端是否存在
       if (!client) {
         if (config.verboseConsoleOutput) {
-          logger.info(`[DEBUG] 客户端实例不存在，跳过处理`);
+          logger.info(`[DEBUG] ⚠️ 客户端实例不存在，跳过处理`);
         }
         return next();
       }
@@ -75,12 +79,12 @@ export function apply(ctx: Context, config: PluginConfig) {
       );
 
       if ( matchedSource && matchedSource.enable===false ){
-        config.verboseConsoleOutput && logger.info(`[DEBUG] 是目标平台，但未启用，跳过处理`);
+        config.verboseConsoleOutput && logger.info(`[DEBUG] ⚠️ 是目标平台，但未启用，跳过处理`);
         return next(); // 不是来源平台，继续处理其他中间件
       }
 
       if (!matchedSource) {
-        config.verboseConsoleOutput && logger.info(`[DEBUG] 不是目标来源平台，跳过处理`);
+        config.verboseConsoleOutput && logger.info(`[DEBUG] ⚠️ 不是目标来源平台，跳过处理`);
         return next(); // 不是来源平台，继续处理其他中间件
       }
 
@@ -93,7 +97,7 @@ export function apply(ctx: Context, config: PluginConfig) {
         
         if (isBotMessage) {
           if (config.verboseConsoleOutput) {
-            logger.info(`[DEBUG] 排除机器人消息: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
+            logger.info(`[DEBUG] 🤖 排除机器人消息: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
           }
           return next();
         }
@@ -106,14 +110,14 @@ export function apply(ctx: Context, config: PluginConfig) {
         );
         if (!hasPrefix) {
           if (config.verboseConsoleOutput) {
-            logger.info(`[DEBUG] 消息不符合前缀要求，跳过转发`);
+            logger.info(`[DEBUG] ⚠️ 消息不符合前缀要求，跳过转发`);
           }
           return next();
         }
       }
 
       if (config.verboseConsoleOutput) {
-        logger.info(`[DEBUG] 准备转发消息到服务器`);
+        logger.info(`[DEBUG] 🔄 准备转发消息到服务器`);
       }
       // 转发消息到服务器
       client.forwardPlatformMessageToServer(session);
