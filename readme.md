@@ -23,7 +23,7 @@
 
 还在手动看 Minecraft 服务器后台？还在纠结群里发的消息怎么同步到游戏里？
 
-**mclistener-ws-client** 是一个 Koishi 插件，基于 WebSocket 对接服务端的 MCDR 插件，实现 **群服互通** —— 不止于文字！🎉
+**mclistener-ws-client** 是一个 Koishi 插件，基于 WebSocket 对接服务端 MCDR 插件 [![MCDR](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://github.com/VincentZyuApps/mcdr_listener_ws_server) [`mcdr_listener_ws_server`](https://gitee.com/vincent-zyu/mcdr_listener_ws_server)，实现 **群服互通** —— 不止于文字！🎉
 
 以 WebSocket 客户端方式对接服务端的 MCDR（MCDReforged）插件，实现 **聊天平台 ↔ 服务器** 的双向消息互通。玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
@@ -31,17 +31,18 @@
 
 ## 📸 效果预览
 
-**→ MC 服务器 → 聊天平台**
+### **→ MC 服务器 → 聊天平台**
 - 玩家在服里说话、进出事件自动同步到聊天平台
-![](docs/images/preview-mc-server-to-chat-platform.png)
+##### **QQ（OneBot v11）**: ![](docs/images/preview-mc-server-to-onebotv11-chat-platform.png)
 
-**→ 聊天平台 → MC 服务器**
+### **→ 聊天平台 → MC 服务器**
 - 群里发的图文消息自动转发到游戏内
-![](docs/images/preview-chat-platform-to-mc-server.png)
+##### **QQ（OneBot v11）**: ![](docs/images/preview-onebotv11-chat-platform-to-mc-server.png)
+##### **Discord**: ![](docs/images/preview-discord-chat-platform-to-mc-server.png)
 
-**→ 聊天平台远程执行命令**
+### **→ 聊天平台远程执行命令**
 - 通过 Koishi 指令远程执行 MC 服务器命令，结果回传到聊天平台
-![](docs/images/preview-exec-rcon-command-at-chat-platform.png)
+##### **QQ（OneBot v11）**: ![](docs/images/preview-exec-rcon-command-at-chat-platform.png)
 
 ---
 
