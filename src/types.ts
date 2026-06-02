@@ -33,6 +33,7 @@ export interface PluginConfig {
   }>;
 
   // ---- 📥 转发来源配置 ----
+  stripMessageWhitespace: boolean;
   sourcePlatformList: Array<{
     platform: string;
     channelId: string;

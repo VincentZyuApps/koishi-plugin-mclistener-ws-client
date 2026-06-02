@@ -74,6 +74,9 @@ export const Config = Schema.intersect([
   // 📥 第四组：来源平台配置（聊天平台消息 → 服务器）
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
+    stripMessageWhitespace: Schema.boolean()
+      .default(true)
+      .description('🧹 清理消息中的换行和制表符 ✂️<br>💡 将 \\n \\r \\t 替换为空格，压缩连续空格，避免游戏内消息断裂'),
     sourcePlatformList: Schema.array(
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),

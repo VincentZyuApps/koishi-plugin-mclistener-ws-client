@@ -147,6 +147,7 @@ yarn add koishi-plugin-mclistener-ws-client
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
+| `stripMessageWhitespace` | `true` | 🧹 清理消息中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 |
 | `sourcePlatformList` | `[{onebot, 1085190201}]` | 来源平台频道列表（默认监听 onebot 群 1085190201） |
 
 ### 🚪 玩家加入消息转发

@@ -130,6 +130,10 @@ export class MessageHandler {
         }
       }
 
+      if (this.config.stripMessageWhitespace) {
+        messageContent = messageContent.replace(/[\r\n\t]+/g, ' ').replace(/ +/g, ' ').trim();
+      }
+
       const result: PlatformToServerMessage = {
         type: 'chat_platform_to_server',
         group_id: channelName,
