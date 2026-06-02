@@ -14,7 +14,7 @@ export const usage = `
   <a href="https://gitee.com/vincent-zyu/koishi-plugin-mclistener-ws-client" target="_blank">
     <img src="https://img.shields.io/badge/Gitee-C71D23?style=for-the-badge&logo=gitee&logoColor=white" alt="Gitee">
   </a>
-  <a href="https://qm.qq.com/q/ZN7fxZ3qCq" target="_blank">
+  <a href="https://qm.qq.com/q/4vjto4V7Di" target="_blank">
     <img src="https://img.shields.io/badge/QQ群-1085190201-12B7F5?style=flat-square&logo=qq&logoColor=white" alt="QQ群">
   </a>
 </p>

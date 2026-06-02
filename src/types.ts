@@ -103,7 +103,7 @@ export interface ImageInfo {
 
 // ---- 📤 平台 → 服务器消息 ----
 export interface PlatformToServerMessage {
-  type: 'group_to_server';
+  type: 'chat_platform_to_server';
   group_id: string;
   group_name: string;
   nickname: string;
@@ -121,7 +121,7 @@ export interface CommandSender {
 
 // ---- 📨 命令请求 ----
 export interface CommandRequestMessage {
-  type: 'command';
+  type: 'external_command_to_server';
   request_id: string;
   command: string;
   sender: CommandSender;

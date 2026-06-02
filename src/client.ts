@@ -201,7 +201,7 @@ export class MclistenerWsClient {
     const request_id = `${Date.now()}-${this.requestCounter}`;
 
     const request: CommandRequestMessage = {
-      type: 'command',
+      type: 'external_command_to_server',
       request_id,
       command,
       sender,

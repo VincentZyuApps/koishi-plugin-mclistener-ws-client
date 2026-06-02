@@ -131,7 +131,7 @@ export class MessageHandler {
       }
 
       const result: PlatformToServerMessage = {
-        type: 'group_to_server',
+        type: 'chat_platform_to_server',
         group_id: channelName,
         group_name: platformName,
         nickname: nickname,
