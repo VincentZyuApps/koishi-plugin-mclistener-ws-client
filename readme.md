@@ -27,6 +27,24 @@
 
 以 WebSocket 客户端方式对接服务端的 MCDR（MCDReforged）插件，实现 **聊天平台 ↔ 服务器** 的双向消息互通。玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
+---
+
+## 📸 效果预览
+
+**→ MC 服务器 → 聊天平台**
+- 玩家在服里说话、进出事件自动同步到聊天平台
+![](docs/images/preview-mc-server-to-chat-platform.png)
+
+**→ 聊天平台 → MC 服务器**
+- 群里发的图文消息自动转发到游戏内
+![](docs/images/preview-chat-platform-to-mc-server.png)
+
+**→ 聊天平台远程执行命令**
+- 通过 Koishi 指令远程执行 MC 服务器命令，结果回传到聊天平台
+![](docs/images/preview-exec-rcon-command-at-chat-platform.png)
+
+---
+
 ## ✨ 功能
 
 ### 🌐 WebSocket 连接
@@ -36,8 +54,12 @@
 
 ### 📤 群服双向消息转发
 
-- **服务器 → 聊天平台**：玩家在mc服里说话、玩家进出mc服务器事件 自动同步到聊天平台
-- **聊天平台 → 服务器**：群里发的图文消息自动转发到游戏内
+**MC 服务器 → 聊天平台**
+- 玩家在mc服里说话、玩家进出mc服务器事件 自动同步到聊天平台
+
+**聊天平台 → MC 服务器**
+- 群里发的图文消息自动转发到游戏内
+
 > 支持多平台多频道（QQ、Kook、Discord、Telegram 等，理论上 koishi支持的大部分主流聊天平台都能用）
 
 ### 🚪 玩家进出通知
@@ -69,6 +91,8 @@
 
 - 可选详细控制台输出，方便排查连接和转发问题
 
+--- 
+
 ## 📦 安装
 
 在 Koishi 插件市场搜索 `mclistener-ws-client` 即可安装。
@@ -84,6 +108,8 @@ npm install koishi-plugin-mclistener-ws-client
 # 或者使用yarn
 yarn add koishi-plugin-mclistener-ws-client
 ```
+
+--- 
 
 ## ⚙️ 配置
 
