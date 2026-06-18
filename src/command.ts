@@ -49,6 +49,26 @@ export function registerCommands(
         nickname: session?.author?.nickname || session?.author?.username || session?.username || '未知用户',
       };
 
+      if (config.noDeduplicate) {
+        // 不去重模式：每条 command_result 立即回调，用于调试
+        client.sendCommandNoDeduplicate(cmd, sender, (result) => {
+          if (!result) {
+            session.send(`${quote}❌ 命令执行超时`);
+            return;
+          }
+          if (result.ok) {
+            let output = result.result || '(无输出)';
+            if (output.length > config.execCommandMaxReplyLength) {
+              output = output.substring(0, config.execCommandMaxReplyLength) + '\n...(输出过长，已截断)';
+            }
+            session.send(`${quote}✅ [MC]\n> ${cmd}\n${output}`);
+          } else {
+            session.send(`${quote}❌ [MC]\n> ${cmd}\n${result.error || '未知错误'}`);
+          }
+        });
+        return;
+      }
+
       try {
         const result = await client.sendCommand(cmd.trim(), sender);
 

@@ -196,6 +196,9 @@ export const Config = Schema.intersect([
     execCommandMaxReplyLength: Schema.number()
       .default(1500)
       .description('📏 回复最大字符数 ✂️<br>💡 超长截断，避免刷屏'),
+    noDeduplicate: Schema.boolean()
+      .default(false)
+      .description('🔄 指令执行结果不去重，每条command_result立即返回 📨<br>💡 可用于调试，配合服务端execCommandMode:both查看双路径执行情况'),
   }).description('🔐 远程命令执行配置【🤖 Koishi → 🎮 MC 服务器】<br>⚠️ 请谨慎配置，确保安全'),
 
   // ──────────────────────────────────────────────────────────────────────────

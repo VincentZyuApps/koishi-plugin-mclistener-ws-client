@@ -23,9 +23,19 @@
 
 还在手动看 Minecraft 服务器后台？还在纠结群里发的消息怎么同步到游戏里？
 
-**mclistener-ws-client** 是一个 Koishi 插件，基于 WebSocket 对接服务端 MCDR 插件 [![MCDR](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://github.com/VincentZyuApps/mcdr_listener_ws_server) [`mcdr_listener_ws_server`](https://gitee.com/vincent-zyu/mcdr_listener_ws_server)，实现 **群服互通** —— 不止于文字！🎉
+**mclistener-ws-client** 是一个 Koishi 插件，通过 WebSocket 与你的 Minecraft 服务端双向通信，实现 **群服互通** —— 不止于文字！🎉
 
-以 WebSocket 客户端方式对接服务端的 MCDR（MCDReforged）插件，实现 **聊天平台 ↔ 服务器** 的双向消息互通。玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
+根据你的服务端类型，选择对应的服务端插件：
+
+- 🔵 **Java 版 · MCDReforged** —— 适用于绝大多数主流 Java 服务端
+  安装 [![MCDR](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://github.com/VincentZyuApps/mcdr_listener_ws_server) [`mcdr_listener_ws_server`](https://github.com/VincentZyuApps/mcdr_listener_ws_server)
+  📋 支持：文字消息互转 · 聊天平台图片→服务器 · 服务端玩家进出消息广播
+
+- 🟢 **基岩版 · LeviLamina** —— 适用于 BDS + LeviLamina 服务端
+  安装 [![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) [`levilamina-plugin-mclistener-ws-server`](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server)
+  📋 支持：文字消息互转 · 服务端玩家进出消息广播 (聊天平台图片转发暂不支持)
+
+💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
 ---
 
@@ -70,9 +80,9 @@
 
 ---
 
-## ⚠️ 前置条件：启用 RCON
+## ⚠️ 接入MCDR托管的Minecraft Java服务端的前置条件：启用 RCON
 
-以下核心功能**必须**启用 RCON 才能使用：
+以下在Minecraft Java服务端的核心功能**必须**启用 RCON 才能使用：
 - 🖼️ **游戏内展示外部图片**（`!!view_image` 命令 + 图片消息渲染）
 - 🖥️ **远程命令执行**（从聊天平台执行 MC 服务器命令并返回结果）
 

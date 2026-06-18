@@ -12,6 +12,7 @@ export class MclistenerWsClient {
   private isDisposed = false;
   private messageHandler: MessageHandler;
   private pendingRequests: Map<string, { resolve: (value: CommandResultMessage) => void; reject: (reason: Error) => void; timer: NodeJS.Timeout }> = new Map();
+  private pendingNoDedupCallbacks: Map<string, { callback: (r: CommandResultMessage | null) => void; timer: NodeJS.Timeout }> = new Map();
   private requestCounter = 0;
 
   constructor(
@@ -175,6 +176,10 @@ export class MclistenerWsClient {
           this.pendingRequests.delete(result.request_id);
           pending.resolve(result);
         }
+        const noDedup = this.pendingNoDedupCallbacks.get(result.request_id);
+        if (noDedup) {
+          noDedup.callback(result);
+        }
         return;
       }
     } catch {}
@@ -226,6 +231,47 @@ export class MclistenerWsClient {
         reject(e);
       }
     });
+  }
+
+  /**
+   * 发送命令（不去重模式）—— 每条 command_result 都回调，超时回调 null
+   */
+  public sendCommandNoDeduplicate(command: string, sender: CommandSender, onResult: (r: CommandResultMessage | null) => void): void {
+    if (!this.isConnected()) {
+      onResult(null);
+      return;
+    }
+
+    this.requestCounter++;
+    const request_id = `${Date.now()}-${this.requestCounter}`;
+
+    const request: CommandRequestMessage = {
+      type: 'external_command_to_server',
+      request_id,
+      command,
+      sender,
+    };
+
+    const timer = setTimeout(() => {
+      const entry = this.pendingNoDedupCallbacks.get(request_id);
+      if (entry) {
+        this.pendingNoDedupCallbacks.delete(request_id);
+        entry.callback(null);
+      }
+    }, this.config.execCommandTimeoutMs || 10000);
+
+    this.pendingNoDedupCallbacks.set(request_id, { callback: onResult, timer });
+
+    try {
+      this.ws!.send(JSON.stringify(request));
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] ⚡ 发送命令(noDedup): ${command}, request_id: ${request_id}`);
+      }
+    } catch (e) {
+      clearTimeout(timer);
+      this.pendingNoDedupCallbacks.delete(request_id);
+      onResult(null);
+    }
   }
 
   /**

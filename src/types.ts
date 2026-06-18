@@ -75,6 +75,7 @@ export interface PluginConfig {
   }>;
   execCommandTimeoutMs: number;
   execCommandMaxReplyLength: number;
+  noDeduplicate: boolean;
 
   // ---- 🐛 调试配置 ----
   verboseConsoleOutput: boolean;

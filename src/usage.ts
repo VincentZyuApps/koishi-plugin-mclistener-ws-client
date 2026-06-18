@@ -49,9 +49,9 @@ export const usage = `
   }
 </style>
 <div class="rcon-alert">
-  <strong>⚠️ 前置条件：启用 RCON</strong>
+  <strong>⚠️ 接入MCDR托管的Minecraft Java服务端的 前置条件：启用 RCON</strong>
   <p style="margin:8px 0 0 0">
-    图片渲染（<code>!!view_image</code>）和远程命令执行功能，需要 Minecraft 服务器启用 RCON。
+    图片渲染（<code>!!view_image</code>）和远程命令执行功能，需要 Minecraft Java 服务器启用 RCON。
     <br>
     📖 详见 <a href="https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon" target="_blank">## 服务端MCDR插件 RCON配置文档</a>
   </p>
