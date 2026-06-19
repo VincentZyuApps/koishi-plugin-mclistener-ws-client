@@ -25,35 +25,40 @@
 
 **mclistener-ws-client** 是一个 Koishi 插件，通过 WebSocket 与你的 Minecraft 服务端双向通信，实现 **群服互通** —— 不止于文字！🎉
 
+💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
+
 根据你的服务端类型，选择对应的服务端插件：
 
-| 类型 | 描述 | 安装 | 插件 |
-|------|------|------|------|
-| 🔵 **Java 版 · MCDReforged** | 适用于绝大多数主流 Java 服务端 | [![MCDReforged](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [![Minecraft Java Edition](https://img.shields.io/badge/for-Minecraft_Java_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzVmYmY0YSIvPgo8cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjEwIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iNCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjciIHk9IjkiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAiLz4KPC9zdmc%2B&labelColor=6B4E2E)](https://www.minecraft.net/zh-hans) | [`mcdr_listener_ws_server`](https://github.com/VincentZyuApps/mcdr_listener_ws_server) |
-| 🟢 **基岩版 · LeviLamina** | 适用于 BDS + LeviLamina 服务端 | [![LeviLamina BDS](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://lamina.levimc.org/zh/) [![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://apps.microsoft.com/detail/9nqgktxr9bzf?hl=zh-CN) | [`levilamina-plugin-mclistener-ws-server`](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) |
-| 🟠 **CS2 · CounterStrikeSharp** | 适用于 CS2/CSGO 服务端 | [![CounterCtrikeSharp Dedicated Server](https://img.shields.io/badge/for-CounterStrikeSharp-2B3980?style=flat&logo=cplusplus&logoColor=white&labelColor=FCAC19)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [![Counter Strike 2: Global Offensive](https://img.shields.io/badge/for-Counter_Strike_2:_Global_Offensive-FFB71E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIGZpbGw9IiNGRkI3MUUiLz4KICA8cmVjdCB4PSI4IiB5PSIwIiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzFFNEQ4QyIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIzLjUiIHI9IjEuOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI3IiB5PSI1LjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjMuNSIgcng9Ii41IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjQuNSIgeT0iNi41IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjEuNSIgcng9Ii40IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjkiIHk9IjYuNSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSIxLjUiIHJ4PSIuNCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI2LjUiIHk9IjkiIHdpZHRoPSIxLjMiIGhlaWdodD0iMyIgcng9Ii4zIiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjguMiIgeT0iOSIgd2lkdGg9IjEuMyIgaGVpZ2h0PSIzIiByeD0iLjMiIGZpbGw9IndoaXRlIi8%2BCjwvc3ZnPg%3D%3D&labelColor=1E4D8C)](https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers) | [`CounterStrikeSharpListenerWsServer`](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) |
+| 游戏名 | 安装插件服务端 | 服务端插件下载地址 |
+|------|------|------|
+| 🔵 **Java版MC** | 适用于绝大多数主流 Java MC 服务端 · [![MCDReforged](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [![Minecraft Java Edition](https://img.shields.io/badge/for-Minecraft_Java_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzVmYmY0YSIvPgo8cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjEwIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iNCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjciIHk9IjkiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAiLz4KPC9zdmc%2B&labelColor=6B4E2E)](https://www.minecraft.net/zh-hans) | [mcdr_listener_ws_server](https://www.minecraft.net/en-us/download/server) |
+| 🟢 **基岩版MC** | 适用于 LeviLamina BDS服务端 · [![LeviLamina BDS](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://lamina.levimc.org/zh/) [![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://www.minecraft.net/en-us/download/server/bedrock) | [levilamina-plugin-mclistener-ws-server](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) |
+| 🟠 **CS2** | 适用于 CounterStrikeSharp CS2 服务端 · [![CounterCtrikeSharp Dedicated Server](https://img.shields.io/badge/for-CounterStrikeSharp-512BD4?style=flat&logo=cplusplus&logoColor=white&labelColor=178600)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [![Counter Strike 2: Global Offensive](https://img.shields.io/badge/for-Counter_Strike_2:_Global_Offensive-2b367c?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIGZpbGw9IiNGRkI3MUUiLz4KICA8cmVjdCB4PSI4IiB5PSIwIiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzFFNEQ4QyIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIzLjUiIHI9IjEuOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI3IiB5PSI1LjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjMuNSIgcng9Ii41IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjQuNSIgeT0iNi41IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjEuNSIgcng9Ii40IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjkiIHk9IjYuNSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSIxLjUiIHJ4PSIuNCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI2LjUiIHk9IjkiIHdpZHRoPSIxLjMiIGhlaWdodD0iMyIgcng9Ii4zIiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjguMiIgeT0iOSIgd2lkdGg9IjEuMyIgaGVpZ2h0PSIzIiByeD0iLjMiIGZpbGw9IndoaXRlIi8%2BCjwvc3ZnPg%3D%3D&labelColor=f5a618)](https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers) | [CounterStrikeSharpListenerWsServer](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) |
+
+> 想要了解各种 Minecraft 服务端发行版，可以参考 [github.com/mouse0w0/MinecraftDeveloperGuide](https://github.com/mouse0w0/MinecraftDeveloperGuide)
+
 
 支持功能对比：
 
 | 服务端 | 文字消息互转 | 聊天平台图片→服务器 | 远程指令执行 |
 |--------|:---:|:---:|:---:|
-| 🔵 MCDR (Java) | ✅ | ✅ | ✅ |
-| 🟢 LeviLamina (BDS) | ✅ | ❌ | ✅ |
-| 🟠 CS2 | ✅ | ❌ | ✅ |
+| 🔵 MCDReforged (Java) | ✅ | ✅ | ✅ |
+| 🟢 LeviLamina (Bedrock) | ✅ | ❌ | ✅ |
+| 🟠 CounterStrikeSharp (CS2) | ✅ | ❌ | ✅ |
 
-💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
 ---
 
 ## 🚀 3 分钟快速上手
 
-### Step 1: 配置服务端（MCDR 插件）
+### Step 1: 配置服务端（MCDR / LeviLamina / CS2）
 
-1. 将 `mcdr_listener_ws_server` 放入 MCDR 插件目录，安装依赖(具体配置流程参考MCDR插件文档: https://github.com/VincentZyuApps/mcdr_listener_ws_server)
-2. 加载插件，编辑生成的 `/path-to-mcdr-root/config/mcdr_listener_ws_server/config.yml`
-3. 修改 `ws_token` 为你自己的密码（客户端需保持一致）
+选择对应的服务端插件安装，最简配置大同小异：配置 `port` 和 `token` 即可。更多配置项详见对应服务端插件 README：
+- **MCDReforged** → [mcdr_listener_ws_server](https://github.com/VincentZyuApps/mcdr_listener_ws_server)
+- **LeviLamina** → [levilamina-plugin-mclistener-ws-server](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server)
+- **CounterStrikeSharp** → [CounterStrikeSharpListenerWsServer](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer)
 
-### Step 2: 配置本插件（Koishi）
+### Step 2: 配置客户端（本Koishi插件）
 
 1. 在 Koishi 插件市场 或者 使用 `npm/yarn` 安装 `mclistener-ws-client`
 2. 配置 `wsServerUrl` 指向服务端 WebSocket 地址（默认 `ws://127.0.0.1:60601`）
@@ -65,7 +70,18 @@
 - 在群里发消息 → 检查游戏内是否收到
 - 在游戏里说话 → 检查群里是否收到
 
-> 💡 图片渲染功能 *(MCDR only)* 和 远程命令执行功能(*MCDR and CSS only*) 需要额外配置 RCON，见下方 [前置条件](#️-前置条件启用-rcon)。
+> 💡 图片渲染功能 *(MCDReforged only)* 和 远程命令执行功能(*MCDReforged and CounterStrikeSharp only*) 需要额外配置 RCON，见下方 [前置条件](#️-前置条件启用-rcon)。
+
+> **🤔 什么是 RCON？**  
+> RCON（Remote Console）是一种基于 TCP 的远程服务器管理协议，允许客户端向游戏服务器发送命令并接收结果。本插件利用 RCON 实现图片渲染和远程指令执行功能。
+> 
+> Minecraft Java 版原生支持 RCON。
+> 
+> CS2 也可通过 Source RCON 协议启用。 
+> 
+> 了解更多 👉：
+> - [Minecraft Wiki - RCON](https://minecraft.wiki/w/RCON)
+> - [Source RCON Protocol](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol)
 
 ---
 
@@ -210,7 +226,9 @@ yarn add koishi-plugin-mclistener-ws-client
 
 ## ⚙️ 配置
 
-### 最小可用配置
+### 最小可用配置示例
+
+> 建议去Koishi Webui配置，而不是直接修改yaml文件
 
 ```yaml
 wsServerUrl: ws://你的服务器IP:60601
@@ -229,38 +247,38 @@ targetPlatformChannelList:
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableQuote` | `true` | 启用回复引用，指令回复自动带引用 |
+| `enableQuote` | `true` | 💬 启用回复引用，指令回复自动带引用 🔗 |
 
 ### 🌐 WebSocket 连接配置
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `wsServerUrl` | `ws://127.0.0.1:60601` | WebSocket 服务器地址 |
-| `wsToken` | `test12345` | WebSocket 连接 Token（空=不校验）⚠️ 建议修改默认值 |
+| `wsServerUrl` | `ws://127.0.0.1:60601` | 🔗 WebSocket 服务器地址 |
+| `wsToken` | `test12345` | 🔑 WebSocket 连接 Token（空=不校验）⚠️ 建议修改默认值 |
 
 ### 📊 报告配置
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enablePrivateReport` | `false` | 启用私聊报告 |
-| `privateReportUserIdList` | `[]` | 私聊报告用户列表（平台 + 用户ID） |
-| `enableChannelReport` | `false` | 启用频道报告 |
-| `reportChannelList` | `[]` | 报告频道列表 |
-| `enableConsoleLogReport` | `true` | 启用控制台日志报告 |
+| `enablePrivateReport` | `false` | 📩 启用私聊报告 📨 |
+| `privateReportUserIdList` | `[]` | 👤 私聊报告用户列表（平台 + 用户ID）👥 |
+| `enableChannelReport` | `false` | 📢 启用频道报告 📣 |
+| `reportChannelList` | `[]` | 📋 报告频道列表 📍 |
+| `enableConsoleLogReport` | `true` | 🖥️ 启用控制台日志报告 📝 |
 
 ### 📤 转发目的地配置（服务器 → 聊天平台）
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableAddDateTimePrefix` | `true` | 转发时添加日期时间前缀 |
-| `targetPlatformChannelList` | `[{onebot, 1085190201}]` | 目标平台频道列表（默认转发到 onebot 群的 1085190201） |
+| `enableAddDateTimePrefix` | `true` | 📅 转发时添加日期时间前缀 🕐 |
+| `targetPlatformChannelList` | `[{onebot, 1085190201}]` | 🎯 目标平台频道列表（默认转发到 onebot 群的 1085190201） 📤 |
 
 ### 📥 来源平台配置（聊天平台 → 服务器）
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `stripMessageWhitespace` | `true` | 🧹 清理消息中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 |
-| `sourcePlatformList` | `[{onebot, 1085190201}]` | 来源平台频道列表（默认监听 onebot 群 1085190201） |
+| `stripMessageWhitespace` | `true` | 🧹 清理消息中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 ✂️ |
+| `sourcePlatformList` | `[{onebot, 1085190201}]` | 📥 来源平台频道列表（默认监听 onebot 群 1085190201） 👂 |
 
 > ℹ️ 当前转发到服务端的 `group_name` 填入的是平台标识（如 `onebot`、`discord`），并非真实群名/频道名。真实来源 ID 在 `group_id` 字段。
 
@@ -268,37 +286,37 @@ targetPlatformChannelList:
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerJoin` | `true` | 启用转发玩家加入消息 |
-| `customizePlayerJoinMsg` | `🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨` | 自定义加入消息模板 |
+| `enableForwardPlayerJoin` | `true` | ✅ 启用转发玩家加入消息 🚪 |
+| `customizePlayerJoinMsg` | `🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨` | ✏️ 自定义加入消息模板 🎨 |
 
 ### 🚶 玩家离开消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerLeave` | `true` | 启用转发玩家离开消息 |
-| `customizePlayerLeaveMsg` | `😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋` | 自定义离开消息模板 |
+| `enableForwardPlayerLeave` | `true` | ✅ 启用转发玩家离开消息 🚶 |
+| `customizePlayerLeaveMsg` | `😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋` | ✏️ 自定义离开消息模板 🎨 |
 
 ### 💬 玩家聊天消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerChat` | `true` | 启用转发玩家聊天消息 |
-| `customizePlayerChatMsg` | `🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%` | 自定义聊天消息模板 |
-| `enableFowardMsgPrefixWhitelistCheck` | `false` | 启用白名单前缀检查 |
-| `fowardMsgPrefixWhitelistList` | `['#']` | 白名单前缀列表 |
-| `enableForwardMsgPrefixBlacklistCheck` | `true` | 启用黑名单前缀检查 |
-| `fowardMsgPrefixBlacklistList` | `['/', '!!']` | 黑名单前缀列表 |
-| `enableSenderBlacklistCheck` | `false` | 启用发送者黑名单检查 |
-| `senderBlacklistList` | `['Server']` | 发送者黑名单列表 |
+| `enableForwardPlayerChat` | `true` | ✅ 启用转发玩家聊天消息 💬 |
+| `customizePlayerChatMsg` | `🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%` | ✏️ 自定义聊天消息模板 🎨 |
+| `enableFowardMsgPrefixWhitelistCheck` | `false` | ✅ 启用白名单前缀检查 ⬜ |
+| `fowardMsgPrefixWhitelistList` | `['#']` | 📝 白名单前缀列表 ⬜ |
+| `enableForwardMsgPrefixBlacklistCheck` | `true` | ✅ 启用黑名单前缀检查 ⬛ |
+| `fowardMsgPrefixBlacklistList` | `['/', '!!']` | 📝 黑名单前缀列表 ⬛ |
+| `enableSenderBlacklistCheck` | `false` | ✅ 启用发送者黑名单检查 🚫 |
+| `senderBlacklistList` | `['Server']` | 📝 发送者黑名单列表 🚫 |
 
 ### 🔄 平台消息转发到服务器
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableFowardPlatformChat` | `true` | 启用转发平台消息到服务器 |
-| `platformChatPrefixCheck` | `false` | 启用平台消息前缀检查 |
-| `platformChatPrefixList` | `['#']` | 平台消息前缀列表 |
-| `excludeBotMessages` | `true` | 排除机器人自己发送的消息 ⚠️ 判定逻辑包含昵称子串匹配：昵称中包含 `bot` 或 `机器人` 的用户也会被排除，如有误杀请关闭此选项 |
+| `enableFowardPlatformChat` | `true` | ✅ 启用转发平台消息到服务器 📤 |
+| `platformChatPrefixCheck` | `false` | ✅ 启用平台消息前缀检查 🔍 |
+| `platformChatPrefixList` | `['#']` | 📝 平台消息前缀列表 🔍 |
+| `excludeBotMessages` | `true` | 🤖 排除机器人自己发送的消息 ⚠️ 判定逻辑包含昵称子串匹配：昵称中包含 `bot` 或 `机器人` 的用户也会被排除，如有误杀请关闭此选项 🚫 |
 
 > ⚠️ **富文本支持范围**: 当前仅处理文本、@提及（转为 `<at @userId>`）、图片（转为 `<img:N>` + images 数组）。其他平台特有消息元素（如表情、卡片、文件等）会退化为 `<元素类型>` 占位文本。
 
@@ -306,13 +324,13 @@ targetPlatformChannelList:
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableExecCommand` | `false` | 启用远程命令执行能力 |
-| `execCommandName` | `mcws.exec` | Koishi 指令名 |
-| `enableExecCommandWhitelist` | `true` | 启用用户白名单 |
-| `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513） |
-| `execCommandTimeoutMs` | `10000` | 命令执行超时时间（毫秒） |
-| `execCommandMaxReplyLength` | `1500` | 回复最大字符数 |
-| `noDeduplicate` | `false` | 🔄 指令执行结果不去重，每条 command_result 立即返回。可用于调试，配合 CSS 服务端插件的 execCommandMode:both 查看双路径执行情况 |
+| `enableExecCommand` | `false` | 🔐 启用远程命令执行能力 🖥️ |
+| `execCommandName` | `mcws.exec` | 📛 Koishi 指令名 ⌨️ |
+| `enableExecCommandWhitelist` | `true` | ✅ 启用用户白名单 👤 |
+| `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 👤 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513）👥 |
+| `execCommandTimeoutMs` | `10000` | ⏱️ 命令执行超时时间（毫秒）⌛ |
+| `execCommandMaxReplyLength` | `1500` | 📏 回复最大字符数 ✂️ |
+| `noDeduplicate` | `false` | 🔄 指令执行结果不去重，每条 command_result 立即返回。可用于调试，配合 CSS 服务端插件的 execCommandMode:both 查看双路径执行情况 🐛 |
 
 ## 🖥️ 命令
 
