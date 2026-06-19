@@ -27,17 +27,19 @@
 
 根据你的服务端类型，选择对应的服务端插件：
 
-- 🔵 **Java 版 · MCDReforged** —— 适用于绝大多数主流 Java 服务端
-  安装 [![MCDR](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://github.com/VincentZyuApps/mcdr_listener_ws_server) [`mcdr_listener_ws_server`](https://github.com/VincentZyuApps/mcdr_listener_ws_server)
-  📋 支持：文字消息互转 · 聊天平台图片→服务器 · 服务端玩家进出消息广播
+| 类型 | 描述 | 安装 | 插件 |
+|------|------|------|------|
+| 🔵 **Java 版 · MCDReforged** | 适用于绝大多数主流 Java 服务端 | [![MCDReforged](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [![Minecraft Java Edition](https://img.shields.io/badge/for-Minecraft_Java_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzVmYmY0YSIvPgo8cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjEwIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iNCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjciIHk9IjkiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAiLz4KPC9zdmc%2B&labelColor=6B4E2E)](https://www.minecraft.net/zh-hans) | [`mcdr_listener_ws_server`](https://github.com/VincentZyuApps/mcdr_listener_ws_server) |
+| 🟢 **基岩版 · LeviLamina** | 适用于 BDS + LeviLamina 服务端 | [![LeviLamina BDS](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://lamina.levimc.org/zh/) [![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://apps.microsoft.com/detail/9nqgktxr9bzf?hl=zh-CN) | [`levilamina-plugin-mclistener-ws-server`](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) |
+| 🟠 **CS2 · CounterStrikeSharp** | 适用于 CS2/CSGO 服务端 | [![CounterCtrikeSharp Dedicated Server](https://img.shields.io/badge/for-CounterStrikeSharp-2B3980?style=flat&logo=cplusplus&logoColor=white&labelColor=FCAC19)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [![Counter Strike 2: Global Offensive](https://img.shields.io/badge/for-Counter_Strike_2:_Global_Offensive-FFB71E?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIGZpbGw9IiNGRkI3MUUiLz4KICA8cmVjdCB4PSI4IiB5PSIwIiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzFFNEQ4QyIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIzLjUiIHI9IjEuOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI3IiB5PSI1LjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjMuNSIgcng9Ii41IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjQuNSIgeT0iNi41IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjEuNSIgcng9Ii40IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjkiIHk9IjYuNSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSIxLjUiIHJ4PSIuNCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI2LjUiIHk9IjkiIHdpZHRoPSIxLjMiIGhlaWdodD0iMyIgcng9Ii4zIiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjguMiIgeT0iOSIgd2lkdGg9IjEuMyIgaGVpZ2h0PSIzIiByeD0iLjMiIGZpbGw9IndoaXRlIi8%2BCjwvc3ZnPg%3D%3D&labelColor=1E4D8C)](https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers) | [`CounterStrikeSharpListenerWsServer`](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) |
 
-- 🟢 **基岩版 · LeviLamina** —— 适用于 BDS + LeviLamina 服务端
-  安装 [![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) [`levilamina-plugin-mclistener-ws-server`](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server)
-  📋 支持：文字消息互转 · 服务端玩家进出消息广播 (聊天平台图片转发暂不支持)
+支持功能对比：
 
-- 🟠 **CS2 · CounterStrikeSharp** —— 适用于 CS2/CSGO 服务端
-  安装 [![CS2](https://img.shields.io/badge/for-CounterStrikeSharp-2B3980?style=flat&logo=csharp&logoColor=white&labelColor=FCAC19)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [`CounterStrikeSharpListenerWsServer`](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer)
-  📋 支持：文字消息互转 · 聊天平台图片→服务器 · 服务端玩家进出消息广播
+| 服务端 | 文字消息互转 | 聊天平台图片→服务器 | 远程指令执行 |
+|--------|:---:|:---:|:---:|
+| 🔵 MCDR (Java) | ✅ | ✅ | ✅ |
+| 🟢 LeviLamina (BDS) | ✅ | ❌ | ✅ |
+| 🟠 CS2 | ✅ | ❌ | ✅ |
 
 💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
@@ -63,7 +65,7 @@
 - 在群里发消息 → 检查游戏内是否收到
 - 在游戏里说话 → 检查群里是否收到
 
-> 💡 图片渲染和远程命令需要额外配置 RCON，见下方 [前置条件](#️-前置条件启用-rcon)。
+> 💡 图片渲染功能 *(MCDR only)* 和 远程命令执行功能(*MCDR and CSS only*) 需要额外配置 RCON，见下方 [前置条件](#️-前置条件启用-rcon)。
 
 ---
 
@@ -122,15 +124,21 @@
 
 ---
 
-## ⚠️ 接入MCDR托管的Minecraft Java服务端的前置条件：启用 RCON
+## ⚠️ 前置条件：启用 RCON（服务端侧）
 
-以下在Minecraft Java服务端的核心功能**必须**启用 RCON 才能使用：
+以下核心功能**必须**启用 RCON 才能使用：
 - 🖼️ **游戏内展示外部图片**（`!!view_image` 命令 + 图片消息渲染）
-- 🖥️ **远程命令执行**（从聊天平台执行 MC 服务器命令并返回结果）
+- 🖥️ **远程命令执行**（从聊天平台执行服务器命令并返回结果）
 
 > 如果你只需要基础的文字消息转发和进出服通知，可以跳过此步骤。
->
-> 📖 详见服务器端MCDR插件文档：[## RCON 配置步骤](https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon)
+
+### 🟢 MCDR（Minecraft Java 版）
+
+详见服务端 MCDR 插件文档：[RCON 配置步骤](https://github.com/VincentZyuApps/mcdr_listener_ws_server#%EF%B8%8F-%E5%89%8D%E7%BD%AE%E6%9D%A1%E4%BB%B6%E5%90%AF%E7%94%A8-rcon)
+
+### 🟠 CounterStrikeSharp（CS2/CSGO）
+
+详见服务端 CSS 插件文档：[RCON 配置步骤](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer#-开启-rcon可选)
 
 ---
 
@@ -308,9 +316,9 @@ targetPlatformChannelList:
 
 ## 🖥️ 命令
 
-### `mcws.exec <cmd>`
+### 指令名默认值: `mcws.exec <cmd>` 
 
-在 MC 服务器上远程执行命令，结果回传到聊天平台。
+在 MC/CS 服务器上远程执行命令，结果回传到聊天平台。
 
 - **默认指令名**: `mcws.exec`（可通过 `execCommandName` 配置修改）
 - **使用示例**: `mcws.exec list`
