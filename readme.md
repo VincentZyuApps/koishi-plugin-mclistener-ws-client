@@ -35,6 +35,10 @@
   安装 [![LeviLamina](https://img.shields.io/badge/for-LeviLamina-7FA973?style=flat&labelColor=2C5E3B&logo=cplusplus&logoColor=white)](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) [`levilamina-plugin-mclistener-ws-server`](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server)
   📋 支持：文字消息互转 · 服务端玩家进出消息广播 (聊天平台图片转发暂不支持)
 
+- 🟠 **CS2 · CounterStrikeSharp** —— 适用于 CS2/CSGO 服务端
+  安装 [![CS2](https://img.shields.io/badge/for-CounterStrikeSharp-2B3980?style=flat&logo=csharp&logoColor=white&labelColor=FCAC19)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [`CounterStrikeSharpListenerWsServer`](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer)
+  📋 支持：文字消息互转 · 聊天平台图片→服务器 · 服务端玩家进出消息广播
+
 💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
 
 ---
@@ -65,18 +69,56 @@
 
 ## 📸 效果预览
 
-### **→ MC 服务器 → 聊天平台**
+### 🔵 Java 版 · MCDReforged
+
+#### **→ MC 服务器 → 聊天平台**
 - 玩家在服里说话、进出事件自动同步到聊天平台
-##### **QQ（OneBot v11）**: ![](docs/images/preview-mc-server-to-onebotv11-chat-platform.png)
+##### **QQ（OneBot v11）**: ![](docs/images/mcdreforged-java-minecraft/preview-mc-server-to-onebotv11-chat-platform.png)
 
-### **→ 聊天平台 → MC 服务器**
+#### **→ 聊天平台 → MC 服务器**
 - 群里发的图文消息自动转发到游戏内
-##### **QQ（OneBot v11）**: ![](docs/images/preview-onebotv11-chat-platform-to-mc-server.png)
-##### **Discord**: ![](docs/images/preview-discord-chat-platform-to-mc-server.png)
+##### **QQ（OneBot v11）**: ![](docs/images/mcdreforged-java-minecraft/preview-onebotv11-chat-platform-to-mc-server.png)
+##### **Discord**: ![](docs/images/mcdreforged-java-minecraft/preview-discord-chat-platform-to-mc-server.png)
 
-### **→ 聊天平台远程执行命令**
+#### **→ 聊天平台远程执行命令**
 - 通过 Koishi 指令远程执行 MC 服务器命令，结果回传到聊天平台
-##### **QQ（OneBot v11）**: ![](docs/images/preview-exec-rcon-command-at-chat-platform.png)
+##### **QQ（OneBot v11）**: ![](docs/images/mcdreforged-java-minecraft/preview-exec-rcon-command-at-chat-platform.png)
+
+---
+
+### 🟢 基岩版 · LeviLamina
+
+#### **→ MC 服务器 → 聊天平台**
+- 玩家在服里说话、进出事件自动同步到聊天平台
+##### **QQ（OneBot v11）**: ![](docs/images/levilamina-bedrock-minecraft/preview-mc-server-to-onebotv11-chat-platform.png)
+
+#### **→ 聊天平台 → MC 服务器**
+- 群里发的图文消息自动转发到游戏内
+##### **QQ（OneBot v11）**: ![](docs/images/levilamina-bedrock-minecraft/preview-onebotv11-chat-platform-to-mc-server.png)
+##### **Discord**: ![](docs/images/levilamina-bedrock-minecraft/preview-discord-chat-platform-to-mc-server.png)
+
+#### **→ 聊天平台远程执行命令**
+- 通过 Koishi 指令远程执行 MC 服务器命令，结果回传到聊天平台
+##### **QQ（OneBot v11）**: ![](docs/images/levilamina-bedrock-minecraft/preview-exec-rcon-command-at-chat-platform.png)
+
+---
+
+### 🟠 CS2 · CounterStrikeSharp
+
+#### **→ CS 服务器 → 聊天平台**
+- 玩家在服里说话、进出事件自动同步到聊天平台
+
+#### **→ 聊天平台 → CS 服务器**
+- 群里发的消息自动转发到游戏内
+##### **QQ（OneBot v11）**: ![](docs/images/metamod-source-counterstrikesharp/preview-onebotv11-chat-platform-to-css-server.png)
+
+#### **→ CS 服务器 → 聊天平台**
+- 服务器消息同步到聊天平台
+##### **QQ（OneBot v11）**: ![](docs/images/metamod-source-counterstrikesharp/pewview-css-server-to-onebotv11-chat-platform.png)
+
+#### **→ 聊天平台远程执行命令**
+- 通过 Koishi 指令远程执行 CS 服务器命令，结果回传到聊天平台
+##### **QQ（OneBot v11）**: ![](docs/images/metamod-source-counterstrikesharp/preview-exec-rcon-command-at-chat-platform.png)
 
 ---
 
@@ -219,14 +261,14 @@ targetPlatformChannelList:
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `enableForwardPlayerJoin` | `true` | 启用转发玩家加入消息 |
-| `customizePlayerJoinMsg` | `🎉🎉🎉 %PLAYER% 进入了神秘小服服！！✨✨✨` | 自定义加入消息模板 |
+| `customizePlayerJoinMsg` | `🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨` | 自定义加入消息模板 |
 
 ### 🚶 玩家离开消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `enableForwardPlayerLeave` | `true` | 启用转发玩家离开消息 |
-| `customizePlayerLeaveMsg` | `😢😢😢 %PLAYER% 暂时离开啦~呜——👋👋👋` | 自定义离开消息模板 |
+| `customizePlayerLeaveMsg` | `😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋` | 自定义离开消息模板 |
 
 ### 💬 玩家聊天消息转发
 
@@ -262,6 +304,7 @@ targetPlatformChannelList:
 | `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513） |
 | `execCommandTimeoutMs` | `10000` | 命令执行超时时间（毫秒） |
 | `execCommandMaxReplyLength` | `1500` | 回复最大字符数 |
+| `noDeduplicate` | `false` | 🔄 指令执行结果不去重，每条 command_result 立即返回。可用于调试，配合 CSS 服务端插件的 execCommandMode:both 查看双路径执行情况 |
 
 ## 🖥️ 命令
 

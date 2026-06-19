@@ -99,7 +99,7 @@ export const Config = Schema.intersect([
       .description('✅ 启用转发 服务器玩家加入消息 到 聊天平台 🎉<br>⚠️ 会尊重 targetPlatformChannelList 配置项，只发到其中已启用的频道~'),
     customizePlayerJoinMsg: Schema.string()
       .role('textarea', { rows: [2, 5] })
-      .default('🎉🎉🎉 %PLAYER% 进入了神秘小服服！！✨✨✨')
+      .default('🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨')
       .description('✏️ 自定义玩家加入消息 📝<br>🔤 %PLAYER% 会被替换为玩家名称'),
   }).description('🚪 玩家加入消息转发配置（进服通知）【🎮 服务器 → 💬 聊天平台】'),
 
@@ -112,7 +112,7 @@ export const Config = Schema.intersect([
       .description('✅ 启用转发 服务器玩家离开消息 到 聊天平台 😢<br>⚠️ 会尊重 targetPlatformChannelList 配置项，只发到其中已启用的频道~'),
     customizePlayerLeaveMsg: Schema.string()
       .role('textarea', { rows: [2, 5] })
-      .default('😢😢😢 %PLAYER% 暂时离开啦~呜——👋👋👋')
+      .default('😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋')
       .description('✏️ 自定义玩家离开消息 📝<br>🔤 %PLAYER% 会被替换为玩家名称'),
   }).description('🚶 玩家离开消息转发配置（离服通知）【🎮 服务器 → 💬 聊天平台】'),
 
@@ -197,8 +197,9 @@ export const Config = Schema.intersect([
       .default(1500)
       .description('📏 回复最大字符数 ✂️<br>💡 超长截断，避免刷屏'),
     noDeduplicate: Schema.boolean()
+      .experimental()
       .default(false)
-      .description('🔄 指令执行结果不去重，每条command_result立即返回 📨<br>💡 可用于调试，配合服务端execCommandMode:both查看双路径执行情况'),
+      .description('🔄 指令执行结果不去重，每条command_result立即返回 📨<br> <i> 💡 可用于调试，配合<a href="https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer" target="_blank">css服务端插件</a>的execCommandMode:both查看双路径执行情况 </i>'),
   }).description('🔐 远程命令执行配置【🤖 Koishi → 🎮 MC 服务器】<br>⚠️ 请谨慎配置，确保安全'),
 
   // ──────────────────────────────────────────────────────────────────────────
