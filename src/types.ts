@@ -4,6 +4,7 @@
 export interface PluginConfig {
   // ---- 💬 消息设置 ----
   enableQuote: boolean;
+  useFirstBotWhenSelfIdEmpty: boolean;
 
   // ---- 🌐 WebSocket 连接配置 ----
   wsServerUrl: string;
@@ -13,12 +14,14 @@ export interface PluginConfig {
   enablePrivateReport: boolean;
   privateReportUserIdList: Array<{
     platform: string;
+    selfId: string;
     userId: string;
     enable: boolean;
   }>;
   enableChannelReport: boolean;
   reportChannelList: Array<{
     platform: string;
+    selfId: string;
     channelId: string;
     enable: boolean;
   }>;
@@ -28,14 +31,16 @@ export interface PluginConfig {
   enableAddDateTimePrefix: boolean;
   targetPlatformChannelList: Array<{
     platform: string;
+    selfId: string;
     channelId: string;
     enable: boolean;
   }>;
 
   // ---- 📥 转发来源配置 ----
   stripMessageWhitespace: boolean;
-  sourcePlatformList: Array<{
+  sourcePlatformChannelList: Array<{
     platform: string;
+    selfId: string;
     channelId: string;
     enable: boolean;
   }>;
@@ -58,6 +63,14 @@ export interface PluginConfig {
   enableSenderBlacklistCheck: boolean;
   senderBlacklistList: string[];
 
+  // ---- 🐧 QQ 官方 Bot Markdown ----
+  enableQQMarkdownPlayerJoin: boolean;
+  qqMarkdownPlayerJoinTemplate: string;
+  enableQQMarkdownPlayerLeave: boolean;
+  qqMarkdownPlayerLeaveTemplate: string;
+  enableQQMarkdownPlayerChat: boolean;
+  qqMarkdownPlayerChatTemplate: string;
+
   // ---- 🔄 平台消息转发 ----
   enableFowardPlatformChat: boolean;
   platformChatPrefixCheck: boolean;
@@ -70,6 +83,7 @@ export interface PluginConfig {
   enableExecCommandWhitelist: boolean;
   execCommandAdminUserIdList: Array<{
     platform: string;
+    selfId: string;
     userId: string;
     enable: boolean;
   }>;
@@ -95,6 +109,12 @@ export interface McServerMessage {
 }
 
 export type McServerIncomingMessage = McServerMessage | CommandResultMessage;
+
+export interface RenderedServerMessage {
+  type: McServerMessage['type'];
+  text: string;
+  markdown?: string;
+}
 
 // ---- 🖼️ 图片信息 ----
 export interface ImageInfo {

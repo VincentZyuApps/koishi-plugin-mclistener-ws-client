@@ -71,11 +71,13 @@ export function apply(ctx: Context, config: PluginConfig) {
       }
 
       // 检查是否为目标来源平台和频道
-      // const isSourcePlatform = config.sourcePlatformList.some(
+      // const isSourcePlatform = config.sourcePlatformChannelList.some(
       //   (source) => source.platform === session.platform && source.channelId === session.channelId
       // );
-      const matchedSource = config.sourcePlatformList.find(
-        (source) => source.platform === session.platform && source.channelId === session.channelId
+      const matchedSource = config.sourcePlatformChannelList.find(
+        (source) => source.platform === session.platform
+          && (!source.selfId || source.selfId === session.bot.selfId)
+          && source.channelId === session.channelId
       );
 
       if ( matchedSource && matchedSource.enable===false ){
@@ -91,9 +93,7 @@ export function apply(ctx: Context, config: PluginConfig) {
       // 排除机器人自己的消息 - 多重检查
       if (config.excludeBotMessages) {
         const isBotMessage = session.userId === session.bot.selfId || 
-                           session.author?.userId === session.bot.selfId ||
-                           session.author?.nickname?.includes('bot') ||
-                           session.author?.nickname?.includes('机器人');
+                           session.author?.userId === session.bot.selfId;
         
         if (isBotMessage) {
           if (config.verboseConsoleOutput) {

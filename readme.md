@@ -4,6 +4,8 @@
 
 🌐 Minecraft 群服互通 WebSocket 客户端：对接 MCDR 插件，实现双向消息转发、玩家进出通知、消息过滤等功能。
 
+> 💡 **技术说明**：本插件声明 `reusable`，支持在 Koishi 中配置多个插件实例对接多个游戏服务器。本插件依赖 Koishi 的 `http` 服务（通常由 `@koishijs/plugin-http` 提供），该服务也为 WebSocket 连接提供底层支持。
+
 [![npm](https://img.shields.io/npm/v/koishi-plugin-mclistener-ws-client?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-mclistener-ws-client)
 [![npm-download](https://img.shields.io/npm/dm/koishi-plugin-mclistener-ws-client?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-mclistener-ws-client)
 
@@ -29,22 +31,21 @@
 
 根据你的服务端类型，选择对应的服务端插件：
 
-| 游戏名 | 安装插件服务端 | 服务端插件下载地址 |
-|------|------|------|
-| **🔵Java版MC** | 适用于绝大多数主流 Java MC 服务端 · [![MCDReforged](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [![Minecraft Java Edition](https://img.shields.io/badge/for-Minecraft_Java_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzVmYmY0YSIvPgo8cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjEwIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iNCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjciIHk9IjkiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAiLz4KPC9zdmc%2B&labelColor=6B4E2E)](https://www.minecraft.net/zh-hans) | [mcdr_listener_ws_server](https://www.minecraft.net/en-us/download/server) |
-| **🟢基岩版MC** | 适用于 LeviLamina BDS服务端 · [![LeviLamina BDS](https://img.shields.io/badge/for-LeviLamina-7fa772?style=flat&logo=cplusplus&logoColor=white&labelColor=f34b7d)](https://lamina.levimc.org/zh/) [![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://www.minecraft.net/en-us/download/server/bedrock) | [levilamina-plugin-mclistener-ws-server](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) |
-| **🟠CS2** | 适用于 CounterStrikeSharp CS2 服务端 · [![CounterCtrikeSharp Dedicated Server](https://img.shields.io/badge/for-CounterStrikeSharp-512BD4?style=flat&logo=cplusplus&logoColor=white&labelColor=178600)](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) [![Counter Strike 2: Global Offensive](https://img.shields.io/badge/for-Counter_Strike_2:_Global_Offensive-2b367c?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIGZpbGw9IiNGRkI3MUUiLz4KICA8cmVjdCB4PSI4IiB5PSIwIiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzFFNEQ4QyIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIzLjUiIHI9IjEuOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI3IiB5PSI1LjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjMuNSIgcng9Ii41IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjQuNSIgeT0iNi41IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjEuNSIgcng9Ii40IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjkiIHk9IjYuNSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSIxLjUiIHJ4PSIuNCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI2LjUiIHk9IjkiIHdpZHRoPSIxLjMiIGhlaWdodD0iMyIgcng9Ii4zIiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjguMiIgeT0iOSIgd2lkdGg9IjEuMyIgaGVpZ2h0PSIzIiByeD0iLjMiIGZpbGw9IndoaXRlIi8%2BCjwvc3ZnPg%3D%3D&labelColor=f5a618)](https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers) | [CounterStrikeSharpListenerWsServer](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) |
-
 > 想要了解各种 Minecraft 服务端发行版，可以参考 [github.com/mouse0w0/MinecraftDeveloperGuide](https://github.com/mouse0w0/MinecraftDeveloperGuide)
 
+| 游戏名 | 安装插件服务端加载器 | 服务端插件下载地址 |
+|------|------|------|
+| **🔵Java版MC** | 适用于绝大多数主流 Java MC 服务端 · [![MCDReforged](https://img.shields.io/badge/for-MCDReforged%202-fac00f?style=flat&labelColor=3876a9&logo=python&logoColor=white)](https://mcdreforged.com/zh-CN) [![Minecraft Java Edition](https://img.shields.io/badge/for-Minecraft_Java_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCjxyZWN0IHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzVmYmY0YSIvPgo8cmVjdCB4PSIzIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjEwIiB5PSIzIiB3aWR0aD0iMyIgaGVpZ2h0PSIzIiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjYiIHk9IjYiIHdpZHRoPSI0IiBoZWlnaHQ9IjMiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNSIgeT0iOSIgd2lkdGg9IjIiIGhlaWdodD0iNCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5IiB5PSI5IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIi8%2BCjxyZWN0IHg9IjciIHk9IjkiIHdpZHRoPSIyIiBoZWlnaHQ9IjIiIGZpbGw9IiMwMDAiLz4KPC9zdmc%2B&labelColor=6B4E2E)](https://www.minecraft.net/en-us/download/server) | [mcdr_listener_ws_server](https://github.com/VincentZyuApps/mcdr_listener_ws_server) |
+| **🟢基岩版MC** | 适用于 LeviLamina BDS服务端 · [![LeviLamina BDS](https://img.shields.io/badge/for-LeviLamina-7fa772?style=flat&logo=cplusplus&logoColor=white&labelColor=f34b7d)](https://lamina.levimc.org/zh/) [![Minecraft Bedrock Edition](https://img.shields.io/badge/for-Minecraft_Bedrock_Edition-2A5E38?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSJ3aGl0ZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgZmlsbD0iIzZCNEUyRSIvPjxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxNiIgaGVpZ2h0PSI2IiBmaWxsPSIjM0Q3QTJFIi8%2BPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzVCOUEzRSIvPjxyZWN0IHg9IjgiIHk9IjAiIHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSI0IiB5PSI0IiB3aWR0aD0iNCIgaGVpZ2h0PSIyIiBmaWxsPSIjNUI5QTNFIi8%2BPHJlY3QgeD0iMTIiIHk9IjQiIHdpZHRoPSI0IiBoZWlnaHQ9IjIiIGZpbGw9IiM1QjlBM0UiLz48cmVjdCB4PSIyIiB5PSI4IiB3aWR0aD0iMiIgaGVpZ2h0PSIyIiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iNiIgeT0iOCIgd2lkdGg9IjQiIGhlaWdodD0iNCIgZmlsbD0iIzhCNkI0RSIvPjxyZWN0IHg9IjEyIiB5PSI2IiB3aWR0aD0iMiIgaGVpZ2h0PSI0IiBmaWxsPSIjOEI2QjRFIi8%2BPHJlY3QgeD0iMCIgeT0iMTIiIHdpZHRoPSI2IiBoZWlnaHQ9IjQiIGZpbGw9IiM4QjZCNEUiLz48cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI2IiBoZWlnaHQ9IjYiIGZpbGw9IiM4QjZCNEUiLz48L3N2Zz4%3D&labelColor=6B4E2E)](https://www.minecraft.net/en-us/download/server/bedrock) | [levilamina-plugin-mclistener-ws-server](https://github.com/VincentZyuApps/levilamina-plugin-mclistener-ws-server) |
+| **🟠CS2** | 适用于 CounterStrikeSharp CS2 服务端 · [![CounterCtrikeSharp Dedicated Server](https://img.shields.io/badge/for-CounterStrikeSharp-512BD4?style=flat&logo=cplusplus&logoColor=white&labelColor=178600)](https://docs.cssharp.dev/docs/guides/getting-started.html) [![Counter Strike 2: Global Offensive](https://img.shields.io/badge/for-Counter_Strike_2:_Global_Offensive-2b367c?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNiAxNiI%2BCiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjgiIGhlaWdodD0iMTYiIGZpbGw9IiNGRkI3MUUiLz4KICA8cmVjdCB4PSI4IiB5PSIwIiB3aWR0aD0iOCIgaGVpZ2h0PSIxNiIgZmlsbD0iIzFFNEQ4QyIvPgogIDxjaXJjbGUgY3g9IjgiIGN5PSIzLjUiIHI9IjEuOCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI3IiB5PSI1LjUiIHdpZHRoPSIyIiBoZWlnaHQ9IjMuNSIgcng9Ii41IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjQuNSIgeT0iNi41IiB3aWR0aD0iMi41IiBoZWlnaHQ9IjEuNSIgcng9Ii40IiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjkiIHk9IjYuNSIgd2lkdGg9IjIuNSIgaGVpZ2h0PSIxLjUiIHJ4PSIuNCIgZmlsbD0id2hpdGUiLz4KICA8cmVjdCB4PSI2LjUiIHk9IjkiIHdpZHRoPSIxLjMiIGhlaWdodD0iMyIgcng9Ii4zIiBmaWxsPSJ3aGl0ZSIvPgogIDxyZWN0IHg9IjguMiIgeT0iOSIgd2lkdGg9IjEuMyIgaGVpZ2h0PSIzIiByeD0iLjMiIGZpbGw9IndoaXRlIi8%2BCjwvc3ZnPg%3D%3D&labelColor=f5a618)](https://developer.valvesoftware.com/wiki/Counter-Strike_2/Dedicated_Servers) | [CounterStrikeSharpListenerWsServer](https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer) |
 
-支持功能对比：
+### 支持功能对比：
 
-| 服务端 | 文字消息互转 | 聊天平台图片→服务器 | 远程指令执行 |
-|--------|:---:|:---:|:---:|
-| 🔵 MCDReforged (Java) | ✅ | ✅ | ✅ |
-| 🟢 LeviLamina (Bedrock) | ✅ | ❌ | ✅ |
-| 🟠 CounterStrikeSharp (CS2) | ✅ | ❌ | ✅ |
+| 服务端 | 服务器玩家进出->聊天平台 | 文字消息双向转发 | 聊天平台图片->服务器 | 远程指令执行 |
+|--------|:---:|:---:|:---:|:---:|
+| 🔵 MCDReforged (Minecraft Java Edition) | ✅ | ✅ | ✅ | ✅ |
+| 🟢 LeviLamina (Minecraft Bedrock Edition) | ✅ | ✅ | ❌ | ✅ |
+| 🟠 CounterStrikeSharp (Counter Strike 2: Global Offensive) | ✅ | ✅ | ❌ | ✅ |
 
 
 ---
@@ -248,6 +249,7 @@ targetPlatformChannelList:
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `enableQuote` | `true` | 💬 启用回复引用，指令回复自动带引用 🔗 |
+| `useFirstBotWhenSelfIdEmpty` | `true` | 🤖 列表条目 `selfId` 留空时只使用第一个匹配 `platform` 的 Bot；关闭后会对所有同平台 Bot 尝试发送 |
 
 ### 🌐 WebSocket 连接配置
 
@@ -255,6 +257,8 @@ targetPlatformChannelList:
 |--------|--------|------|
 | `wsServerUrl` | `ws://127.0.0.1:60601` | 🔗 WebSocket 服务器地址 |
 | `wsToken` | `test12345` | 🔑 WebSocket 连接 Token（空=不校验）⚠️ 建议修改默认值 |
+
+> 🔌 **连接行为**：断开后固定 5 秒自动重连。Token 通过 WebSocket URL 的 query 参数 `?token=xxx` 传递。
 
 ### 📊 报告配置
 
@@ -281,6 +285,8 @@ targetPlatformChannelList:
 | `sourcePlatformList` | `[{onebot, 1085190201}]` | 📥 来源平台频道列表（默认监听 onebot 群 1085190201） 👂 |
 
 > ℹ️ 当前转发到服务端的 `group_name` 填入的是平台标识（如 `onebot`、`discord`），并非真实群名/频道名。真实来源 ID 在 `group_id` 字段。
+> 💡 **条目独立开关**：配置列表（如 `sourcePlatformList`、`targetPlatformChannelList`）中的每个条目都有独立的 `enable` 开关，可精细控制哪些频道参与转发。
+> 🤖 **Bot 选择**：这些列表条目的 `selfId` 可以留空；默认只使用第一个匹配 `platform` 的 Bot，关闭 `useFirstBotWhenSelfIdEmpty` 后才会向所有同平台 Bot 发送。
 
 ### 🚪 玩家加入消息转发
 
@@ -316,7 +322,7 @@ targetPlatformChannelList:
 | `enableFowardPlatformChat` | `true` | ✅ 启用转发平台消息到服务器 📤 |
 | `platformChatPrefixCheck` | `false` | ✅ 启用平台消息前缀检查 🔍 |
 | `platformChatPrefixList` | `['#']` | 📝 平台消息前缀列表 🔍 |
-| `excludeBotMessages` | `true` | 🤖 排除机器人自己发送的消息 ⚠️ 判定逻辑包含昵称子串匹配：昵称中包含 `bot` 或 `机器人` 的用户也会被排除，如有误杀请关闭此选项 🚫 |
+| `excludeBotMessages` | `true` | 🤖 排除机器人自己发送的消息 🚫 |
 
 > ⚠️ **富文本支持范围**: 当前仅处理文本、@提及（转为 `<at @userId>`）、图片（转为 `<img:N>` + images 数组）。其他平台特有消息元素（如表情、卡片、文件等）会退化为 `<元素类型>` 占位文本。
 
@@ -384,19 +390,10 @@ targetPlatformChannelList:
 
 ---
 
-## ⚠️ 一些已知限制
+## ⚠️ 一些已知踩坑
 
-- **图片域名白名单**: 图片 URL 的域名必须在服务端 `image_host_whitelist` 中，否则不会下载/渲染
-- **全服冷却**: `!!view_image` 有全服共享冷却（默认 5.5 秒），冷却期间其他玩家无法使用
+- **图片域名白名单**: 图片 URL 的域名必须在MCDR服务端 `image_host_whitelist` 中，否则不会下载/渲染
+- **全服冷却**: MCDR服务端的`!!view_image`指令 有全服共享冷却（默认 5.5 秒），冷却期间其他玩家无法使用
 - **富文本降级**: 非文本消息元素（表情、卡片、文件等）会退化为 `<元素类型>` 占位文本，无法保留原样式
 - **远程命令需双边开启**: 需要同时开启客户端 `enableExecCommand` 和服务端 `enable_remote_exec_command`
-- **编码问题**: Windows 下 MCDR 建议将 encoding 设为 GBK，避免 emoji 编码问题
-- **Bot 误杀**: 昵称包含 `bot` 或 `机器人` 的用户消息可能被 `excludeBotMessages` 误排除
-
-### 📌 部分技术细节
-
-- **重连间隔**: 断开后固定 5 秒自动重连
-- **多实例**: 插件声明 `reusable`，支持在 Koishi 中配置多个实例对接多台服务器
-- **依赖**: 需要 Koishi 的 `http` 服务（通常由 `@koishijs/plugin-http` 提供）
-- **Token 传递**: `wsToken` 通过 WebSocket URL 的 query 参数 `?token=xxx` 传递
-- **条目独立开关**: 配置列表（如 `sourcePlatformList`）中的每个条目都有独立的 `enable` 开关
+- **编码问题**: 在Windows 下 MCDR服务端 建议将 encoding 设为 GBK，避免 emoji 编码问题； 在Linux下可以 encoding和decoding 可以全部用utf-8

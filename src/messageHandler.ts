@@ -1,5 +1,8 @@
 import { Context, Logger, h } from 'koishi';
-import { PluginConfig, McServerMessage, PlatformToServerMessage } from './types';
+import { PluginConfig, McServerMessage, PlatformToServerMessage, RenderedServerMessage } from './types';
+import { sendQQMarkdown } from './qq';
+import { renderTemplate, TemplateVars } from './template';
+import { resolveBots } from './bot';
 
 const logger = new Logger('mclistener-ws-client:handler');
 
@@ -12,21 +15,34 @@ export class MessageHandler {
   /**
    * 处理来自 MC 服务器的消息
    */
-  public handleServerMessage(message: string): string | null {
+  public handleServerMessage(message: string): RenderedServerMessage | null {
     try {
       const data: McServerMessage = JSON.parse(message);
       const { type, player_name, content } = data;
+      const time = new Date().toLocaleString();
+      const vars: TemplateVars = {
+        player: player_name,
+        content: content || '',
+        time,
+      };
 
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] 处理消息: type=${type}, player=${player_name}, content=${content}`);
       }
 
       let msg = '';
+      let markdown = '';
       
       if (type === 'player_join' && this.config.enableForwardPlayerJoin) {
-        msg = this.config.customizePlayerJoinMsg.replace('%PLAYER%', player_name);
+        msg = renderTemplate(this.config.customizePlayerJoinMsg, vars);
+        if (this.config.enableQQMarkdownPlayerJoin) {
+          markdown = renderTemplate(this.config.qqMarkdownPlayerJoinTemplate, vars);
+        }
       } else if (type === 'player_leave' && this.config.enableForwardPlayerLeave) {
-        msg = this.config.customizePlayerLeaveMsg.replace('%PLAYER%', player_name);
+        msg = renderTemplate(this.config.customizePlayerLeaveMsg, vars);
+        if (this.config.enableQQMarkdownPlayerLeave) {
+          markdown = renderTemplate(this.config.qqMarkdownPlayerLeaveTemplate, vars);
+        }
       } else if (type === 'player_chat' && this.config.enableForwardPlayerChat) {
         // 白名单检查
         if (this.config.enableFowardMsgPrefixWhitelistCheck) {
@@ -61,19 +77,24 @@ export class MessageHandler {
           }
         }
 
-        msg = this.config.customizePlayerChatMsg
-          .replace('%PLAYER%', player_name)
-          .replace('%CONTENT%', content || '');
+        msg = renderTemplate(this.config.customizePlayerChatMsg, vars);
+        if (this.config.enableQQMarkdownPlayerChat) {
+          markdown = renderTemplate(this.config.qqMarkdownPlayerChatTemplate, vars);
+        }
       }
 
       if (!msg) return null;
 
       // 添加时间前缀
       if (this.config.enableAddDateTimePrefix) {
-        msg = `[${new Date().toLocaleString()}]\n\n${msg}`;
+        msg = `[${time}]\n\n${msg}`;
       }
 
-      return msg;
+      return {
+        type,
+        text: msg,
+        markdown: markdown || undefined,
+      };
     } catch (e) {
       logger.error(`❌ 消息处理失败: ${e.message}`);
       return null;
@@ -157,23 +178,30 @@ export class MessageHandler {
   /**
    * 发送消息到配置的频道
    */
-  public async sendMessageToChannels(message: string): Promise<void> {
-    for (const bot of this.ctx.bots) {
-      for (const target of this.config.targetPlatformChannelList) {
-        if (target.enable !== true) {
-          if (this.config.verboseConsoleOutput) {
-            logger.info(`⚠️ 跳过未启用的目标频道: ${target.platform}:${target.channelId}`);
-          }
-          continue;
+  public async sendMessageToChannels(message: RenderedServerMessage): Promise<void> {
+    for (const target of this.config.targetPlatformChannelList) {
+      if (target.enable !== true) {
+        if (this.config.verboseConsoleOutput) {
+          logger.info(`⚠️ 跳过未启用的目标频道: ${target.platform}:${target.channelId}`);
         }
-        if (bot.platform === target.platform) {
-          try {
-            await bot.sendMessage(target.channelId, message);
+        continue;
+      }
+      const bots = this.resolveTargetBots(target);
+      for (const bot of bots) {
+        try {
+          if (bot.platform === 'qq' && message.markdown) {
+            const result = await sendQQMarkdown(bot, target.channelId, message.markdown, logger, this.config.verboseConsoleOutput);
+            logger.info(`📢 成功向 ${target.platform}:${target.channelId} 发送 QQ Markdown 消息: ${result.messageIds.join(', ') || '(no message id)'} via ${result.method}`);
+          } else {
+            await bot.sendMessage(target.channelId, message.text);
             logger.info(`📢 成功向 ${target.platform}:${target.channelId} 发送消息。`);
-          } catch (e) {
-            logger.error(`❌ 向 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
           }
+        } catch (e) {
+          logger.error(`❌ 向 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
         }
+      }
+      if (bots.length === 0) {
+        logger.warn(`⚠️ 未找到目标 Bot: ${target.platform}${target.selfId ? `:${target.selfId}` : ''}`);
       }
     }
   }
@@ -182,16 +210,14 @@ export class MessageHandler {
    * 发送私聊消息
    */
   public async sendPrivateMessages(message: string): Promise<void> {
-    for (const bot of this.ctx.bots) {
-      for (const target of this.config.privateReportUserIdList) {
-        if (target.enable === false) continue;
-        if (bot.platform === target.platform) {
-          try {
-            await bot.sendPrivateMessage(target.userId, message);
-            logger.info(`💌 成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
-          } catch (e) {
-            logger.error(`❌ 向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
-          }
+    for (const target of this.config.privateReportUserIdList) {
+      if (target.enable === false) continue;
+      for (const bot of this.resolveTargetBots(target)) {
+        try {
+          await bot.sendPrivateMessage(target.userId, message);
+          logger.info(`💌 成功向 ${target.platform}:${target.userId} 发送私聊消息。`);
+        } catch (e) {
+          logger.error(`❌ 向 ${target.platform}:${target.userId} 发送私聊消息失败: ${e.message}`);
         }
       }
     }
@@ -201,18 +227,21 @@ export class MessageHandler {
    * 发送报告消息到指定频道
    */
   public async sendReportToChannels(message: string): Promise<void> {
-    for (const bot of this.ctx.bots) {
-      for (const target of this.config.reportChannelList) {
-        if (target.enable === false) continue;
-        if (bot.platform === target.platform) {
-          try {
-            await bot.sendMessage(target.channelId, message);
-            logger.info(`📡 成功向报告频道 ${target.platform}:${target.channelId} 发送消息。`);
-          } catch (e) {
-            logger.error(`❌ 向报告频道 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
-          }
+    for (const target of this.config.reportChannelList) {
+      if (target.enable === false) continue;
+      for (const bot of this.resolveTargetBots(target)) {
+        try {
+          await bot.sendMessage(target.channelId, message);
+          logger.info(`📡 成功向报告频道 ${target.platform}:${target.channelId} 发送消息。`);
+        } catch (e) {
+          logger.error(`❌ 向报告频道 ${target.platform}:${target.channelId} 发送消息失败: ${e.message}`);
         }
       }
     }
+  }
+
+  private resolveTargetBots(target: { platform: string; selfId?: string }) {
+    const bots = resolveBots(this.ctx, target);
+    return !target.selfId && this.config.useFirstBotWhenSelfIdEmpty ? bots.slice(0, 1) : bots;
   }
 }

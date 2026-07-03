@@ -30,6 +30,7 @@ export function registerCommands(
         (item) =>
           item.enable &&
           item.platform === session?.platform &&
+          (!item.selfId || item.selfId === session?.bot?.selfId) &&
           item.userId === session?.userId
       );
 

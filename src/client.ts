@@ -187,7 +187,7 @@ export class MclistenerWsClient {
     const msg = this.messageHandler.handleServerMessage(message);
     if (msg) {
       if (this.config.verboseConsoleOutput) {
-        logger.info(`[DEBUG] [${this.instanceId}] 📤 准备发送消息: ${msg}`);
+        logger.info(`[DEBUG] [${this.instanceId}] 📤 准备发送消息: type=${msg.type}, text=${msg.text}, hasMarkdown=${!!msg.markdown}`);
       }
       this.messageHandler.sendMessageToChannels(msg);
     }

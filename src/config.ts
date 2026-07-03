@@ -1,4 +1,4 @@
-import { Schema } from 'koishi';
+﻿import { Schema } from 'koishi';
 
 export const Config = Schema.intersect([
 
@@ -9,6 +9,9 @@ export const Config = Schema.intersect([
     enableQuote: Schema.boolean()
       .default(true)
       .description('💬 启用回复引用 📎<br>💡 指令触发的回复是否自动带引用'),
+    useFirstBotWhenSelfIdEmpty: Schema.boolean()
+      .default(true)
+      .description('🤖 selfId 留空时是否只使用第一个匹配 platform 的 Bot<br>💡 开启可避免多 Bot 环境下重复转发；关闭则发送给所有匹配 Bot'),
   }).description('💬 消息设置'),
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -34,6 +37,7 @@ export const Config = Schema.intersect([
       .description('📩 启用私聊报告 👤<br>💡 如果启用，WS的断开/连接等事件将私聊发送给指定的人'),
     privateReportUserIdList: Schema.array(Schema.object({
       platform: Schema.string().description('🏷️ 平台名称（比如 onebot, discord 等）'),
+      selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
       userId: Schema.string().description('🆔 用户 ID（要接收通知的那个人的 ID）'),
       enable: Schema.boolean().default(true).description('✅ 是否启用（不想收到可以关掉）'),
     })).role('table').description('👤 私聊报告用户 ID 列表（谁需要收到通知~）'),
@@ -42,6 +46,7 @@ export const Config = Schema.intersect([
       .description('📢 启用频道报告 🏘️<br>💡 如果启用，WS的断开/连接等事件将发送到指定的频道'),
     reportChannelList: Schema.array(Schema.object({
       platform: Schema.string().description('🏷️ 平台名称'),
+      selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
       channelId: Schema.string().description('🆔 频道 ID（哪个群/频道要收通知）'),
       enable: Schema.boolean().default(true).description('✅ 是否启用'),
     })).role('table').description('📋 报告频道列表（群/频道通知目标）'),
@@ -60,11 +65,13 @@ export const Config = Schema.intersect([
     targetPlatformChannelList: Schema.array(
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
+        selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
         channelId: Schema.string().description('🆔 频道 ID（转发到哪个群/频道）'),
         enable: Schema.boolean().default(true).description('✅ 是否启用'),
       })
     ).role('table').default([{
       platform: 'onebot',
+      selfId: '',
       channelId: '1085190201',
       enable: true,
     }]).description('🎯 目标平台频道列表（服务器消息要转发到哪些地方？）'),
@@ -77,14 +84,16 @@ export const Config = Schema.intersect([
     stripMessageWhitespace: Schema.boolean()
       .default(true)
       .description('🧹 清理消息中的换行和制表符 ✂️<br>💡 将 \\n \\r \\t 替换为空格，压缩连续空格，避免游戏内消息断裂'),
-    sourcePlatformList: Schema.array(
+    sourcePlatformChannelList: Schema.array(
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
+        selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
         channelId: Schema.string().description('🆔 频道 ID（哪个群的聊天要发到服务器）'),
         enable: Schema.boolean().default(true).description('✅ 是否启用'),
       })
     ).role('table').default([{
       platform: 'onebot',
+      selfId: '',
       channelId: '1085190201',
       enable: true,
     }]).description('📡 来源平台频道列表（哪些聊天要转发到服务器？）'),
@@ -150,6 +159,33 @@ export const Config = Schema.intersect([
   }).description('💬 玩家聊天消息转发配置【🎮 服内聊天 → 💬 聊天平台】'),
 
   // ──────────────────────────────────────────────────────────────────────────
+  // 🐧 第七点五组：QQ 官方 Bot Markdown 配置
+  // ──────────────────────────────────────────────────────────────────────────
+  Schema.object({
+    enableQQMarkdownPlayerJoin: Schema.boolean()
+      .default(true)
+      .description('🐧 玩家加入消息在 QQ 官方 Bot 平台使用 Markdown 主动消息发送'),
+    qqMarkdownPlayerJoinTemplate: Schema.string()
+      .role('textarea', { rows: [4, 10] })
+      .default('# 🎉 玩家进入服务器\n\n- 玩家：%PLAYER%\n- 时间：%TIME%')
+      .description('📝 QQ Markdown 玩家加入模板<br>支持 <code>%PLAYER%</code>、<code>%TIME%</code>'),
+    enableQQMarkdownPlayerLeave: Schema.boolean()
+      .default(true)
+      .description('🐧 玩家离开消息在 QQ 官方 Bot 平台使用 Markdown 主动消息发送'),
+    qqMarkdownPlayerLeaveTemplate: Schema.string()
+      .role('textarea', { rows: [4, 10] })
+      .default('# 👋 玩家离开服务器\n\n- 玩家：%PLAYER%\n- 时间：%TIME%')
+      .description('📝 QQ Markdown 玩家离开模板<br>支持 <code>%PLAYER%</code>、<code>%TIME%</code>'),
+    enableQQMarkdownPlayerChat: Schema.boolean()
+      .default(true)
+      .description('🐧 玩家聊天消息在 QQ 官方 Bot 平台使用 Markdown 主动消息发送'),
+    qqMarkdownPlayerChatTemplate: Schema.string()
+      .role('textarea', { rows: [4, 10] })
+      .default('# 💬 Minecraft 聊天\n\n**%PLAYER%**\n> %CONTENT%\n\n`%TIME%`')
+      .description('📝 QQ Markdown 玩家聊天模板<br>支持 <code>%PLAYER%</code>、<code>%CONTENT%</code>、<code>%TIME%</code>'),
+  }).description('🐧 QQ 官方 Bot Markdown 配置【仅 platform=qq 生效】'),
+
+  // ──────────────────────────────────────────────────────────────────────────
   // 🔄 第八组：聊天平台消息转发到服务器配置
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
@@ -166,7 +202,7 @@ export const Config = Schema.intersect([
     excludeBotMessages: Schema.boolean()
       .default(true)
       .description('🤖 排除机器人自己发送的消息 🚫<br>💡 避免机器人说的话又被自己转发到服务器，死循环啦~'),
-  }).description('🔄 平台消息转发到服务器配置【💬 聊天平台 → 🎮 服务器】'),
+  }).description('🔄 聊天平台消息转发到服务器配置【💬 聊天平台 → 🎮 服务器】'),
 
   // ──────────────────────────────────────────────────────────────────────────
   // 🔐 第九组：远程命令执行配置
@@ -183,10 +219,12 @@ export const Config = Schema.intersect([
       .description('✅ 启用指令执行用户白名单 🛡️<br>💡 关闭后所有用户均可使用远程指令，请谨慎操作'),
     execCommandAdminUserIdList: Schema.array(Schema.object({
       platform: Schema.string().description('🏷️ 平台名称'),
+      selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
       userId: Schema.string().description('🆔 用户 ID'),
       enable: Schema.boolean().default(true).description('✅ 是否启用'),
     })).role('table').default([{
       platform: 'onebot',
+      selfId: '',
       userId: '1830540513',
       enable: true,
     }]).description('👤 允许执行命令的用户白名单 🛡️<br>💡 支持按平台和用户粒度控制'),
@@ -211,3 +249,4 @@ export const Config = Schema.intersect([
       .description('🔧 启用详细的控制台输出 📋<br>💡 用于调试和问题排查，平时别开哦~'),
   }).description('🐛 调试配置（出问题了再来开这个）'),
 ]);
+
