@@ -8,7 +8,18 @@ export interface PluginConfig {
 
   // ---- 🌐 WebSocket 连接配置 ----
   wsServerUrl: string;
+  wsFallbackServerUrlList: string[];
   wsToken: string;
+  wsConnectTimeoutMs: number;
+  enableWsHeartbeat: boolean;
+  wsHeartbeatIntervalMs: number;
+  wsHeartbeatTimeoutMs: number;
+  wsReconnectStrategy: 'fixed' | 'exponential';
+  wsReconnectFixedDelayMs: number;
+  wsReconnectInitialDelayMs: number;
+  wsReconnectMultiplier: number;
+  wsReconnectMaxDelayMs: number;
+  wsReconnectJitterRatio: number;
 
   // ---- 📊 报告配置 ----
   enablePrivateReport: boolean;

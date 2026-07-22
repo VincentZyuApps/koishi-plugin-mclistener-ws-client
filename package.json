@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-mclistener-ws-client",
   "description": "🌐🎮💬群服互通——WebSocket 客户端插件，用于对接 MC、CS等游戏的 WebSocket 服务端插件，实现 Minecraft 服务器与聊天平台之间的双向消息转发和可配置通知。🔌📡",
-  "version": "0.6.4-beta.2+20260630",
+  "version": "0.6.5-beta.3+20260722",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

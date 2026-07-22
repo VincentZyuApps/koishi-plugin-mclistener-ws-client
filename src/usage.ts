@@ -69,7 +69,9 @@ export const usage = `
 <h3>🌐 WebSocket 连接</h3>
 <ul>
   <li>作为 WebSocket 客户端连接 MCDR 端的 WebSocket 服务端</li>
-  <li>支持自动重连，连接状态可通知到私聊/频道/控制台</li>
+  <li>支持主地址与备用地址轮询、固定间隔或指数退避自动重连</li>
+  <li>支持连接握手超时与标准 WebSocket Ping/Pong 心跳检测</li>
+  <li>连接状态可通知到私聊/频道/控制台</li>
   <li>🔑 支持 Token 认证，连接时需与服务端 Token 匹配</li>
 </ul>
 
@@ -114,7 +116,7 @@ export const usage = `
 <table>
   <tr><th>配置分组</th><th>说明</th></tr>
   <tr><td>💬 消息设置</td><td>回复引用开关 + selfId 留空时的 Bot 选择策略</td></tr>
-  <tr><td>🌐 WebSocket 连接</td><td>服务器地址 + Token 配置</td></tr>
+  <tr><td>🌐 WebSocket 连接</td><td>主备地址 + Token + 超时 + 心跳 + 重连策略</td></tr>
   <tr><td>📊 事件报告</td><td>私聊/频道/控制台通知配置</td></tr>
   <tr><td>📤 转发目的地</td><td>服务器消息要发到哪些平台/频道</td></tr>
   <tr><td>📥 来源平台</td><td>哪些平台/频道的消息要发到服务器</td></tr>

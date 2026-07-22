@@ -242,6 +242,6 @@ export class MessageHandler {
 
   private resolveTargetBots(target: { platform: string; selfId?: string }) {
     const bots = resolveBots(this.ctx, target);
-    return !target.selfId && this.config.useFirstBotWhenSelfIdEmpty ? bots.slice(0, 1) : bots;
+    return target.selfId || this.config.useFirstBotWhenSelfIdEmpty ? bots.slice(0, 1) : bots;
   }
 }

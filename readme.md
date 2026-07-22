@@ -255,10 +255,23 @@ targetPlatformChannelList:
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `wsServerUrl` | `ws://127.0.0.1:60601` | 🔗 WebSocket 服务器地址 |
+| `wsServerUrl` | `ws://127.0.0.1:60601` | 🔗 主 WebSocket 服务器地址 |
+| `wsFallbackServerUrlList` | `[]` | 🛟 备用地址列表；留空时仅使用主地址 |
 | `wsToken` | `test12345` | 🔑 WebSocket 连接 Token（空=不校验）⚠️ 建议修改默认值 |
+| `wsConnectTimeoutMs` | `10000` | ⏱️ WebSocket 握手超时时间（毫秒） |
+| `enableWsHeartbeat` | `true` | 💓 启用标准 WebSocket Ping/Pong 心跳 |
+| `wsHeartbeatIntervalMs` | `30000` | 💓 Ping 发送间隔（毫秒） |
+| `wsHeartbeatTimeoutMs` | `90000` | 💔 最长未收到 Pong 的时间（毫秒） |
+| `wsReconnectStrategy` | `exponential` | 🔁 重连策略：`fixed` 或 `exponential` |
+| `wsReconnectFixedDelayMs` | `5000` | ⏲️ 固定模式重连间隔（毫秒） |
+| `wsReconnectInitialDelayMs` | `1000` | 🌱 指数退避初始延迟（毫秒） |
+| `wsReconnectMultiplier` | `2` | 📈 完整遍历一轮地址后的延迟倍数 |
+| `wsReconnectMaxDelayMs` | `32000` | 🧢 指数退避最终等待时间硬上限（毫秒） |
+| `wsReconnectJitterRatio` | `0.1` | 🎲 等待时间随机抖动比例；`0` 表示关闭 |
 
-> 🔌 **连接行为**：断开后固定 5 秒自动重连。Token 通过 WebSocket URL 的 query 参数 `?token=xxx` 传递。
+> 🔌 **连接行为**：主地址和备用地址组成环形地址池。已连接链路断开时立即尝试下一个地址；所有地址都失败一轮后才提升指数退避等级。连接成功并收到首个 Pong 后清零退避状态。Token 通过 WebSocket URL 的 query 参数 `?token=xxx` 传递。
+>
+> 💓 **兼容性**：启用心跳后，服务端必须正确处理标准 WebSocket Ping/Pong 控制帧。新版 LeviLamina C++ 服务端已提供支持，主流 WebSocket 框架通常会自动回复 Pong。
 
 ### 📊 报告配置
 

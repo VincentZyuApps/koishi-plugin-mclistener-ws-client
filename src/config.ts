@@ -21,12 +21,86 @@ export const Config = Schema.intersect([
     wsServerUrl: Schema.string()
       .default('ws://127.0.0.1:60601')
       .role('link')
-      .description('🌐 WS服务器地址（你的 Mcdreforged 服务端 WebSocket 链接地址哦~）'),
+      .description('🌐 主 WS 服务器地址；连接断开后会从地址池中的下一个地址继续尝试'),
+    wsFallbackServerUrlList: Schema.array(
+      Schema.string().role('link')
+    )
+      .role('table')
+      .default([])
+      .description('🛟 备用 WS 服务器地址列表；留空表示只使用主地址，空值和重复地址会自动忽略'),
     wsToken: Schema.string()
       .default('test12345')
       .role('textarea', { rows: [2, 5] })
       .description('🔑 WebSocket 连接 Token 🔐<br>💡 空字符串表示不校验，非空时通过 URL query 传入 <code>ws://ip:port?token=xxx</code><br>⚠️ 记得改掉默认的 <code>test12345</code> 哇！正式用一定要换一个自己的！🔑'),
+    wsConnectTimeoutMs: Schema.number()
+      .min(1000)
+      .max(60000)
+      .step(1000)
+      .default(10000)
+      .description('⏱️ WebSocket 握手超时时间（毫秒）；超时后切换到下一个地址'),
+    enableWsHeartbeat: Schema.boolean()
+      .default(true)
+      .description('💓 启用标准 WebSocket Ping/Pong 心跳检测'),
+    wsHeartbeatIntervalMs: Schema.number()
+      .min(1000)
+      .max(300000)
+      .step(1000)
+      .default(30000)
+      .description('💓 Ping 发送间隔（毫秒）'),
+    wsHeartbeatTimeoutMs: Schema.number()
+      .min(1000)
+      .max(600000)
+      .step(1000)
+      .default(90000)
+      .description('💔 最长未收到 Pong 的时间（毫秒）；超时后主动断开并重连'),
+    wsReconnectStrategy: Schema.union([
+      Schema.const('fixed').description('固定间隔'),
+      Schema.const('exponential').description('指数退避'),
+    ])
+      .role('radio')
+      .default('exponential')
+      .description('🔁 地址轮询的重连等待策略'),
+    wsReconnectJitterRatio: Schema.number()
+      .role('slider')
+      .min(0)
+      .max(0.5)
+      .step(0.05)
+      .default(0.1)
+      .description('🎲 重连等待时间的随机抖动比例；0.1 表示正负 10%，0 表示关闭'),
   }).description('🌐 WebSocket 连接配置（连不上服务器？检查这里！）'),
+
+  Schema.union([
+    Schema.object({
+      wsReconnectStrategy: Schema.const('fixed').required(false),
+      wsReconnectFixedDelayMs: Schema.number()
+        .min(0)
+        .max(300000)
+        .step(1000)
+        .default(5000)
+        .description('⏲️ 固定重连间隔（毫秒）'),
+    }),
+    Schema.object({
+      wsReconnectStrategy: Schema.const('exponential').required(false),
+      wsReconnectInitialDelayMs: Schema.number()
+        .min(0)
+        .max(300000)
+        .step(1000)
+        .default(1000)
+        .description('🌱 指数退避初始延迟（毫秒）'),
+      wsReconnectMultiplier: Schema.number()
+        .min(1)
+        .max(10)
+        .step(0.1)
+        .default(2)
+        .description('📈 每轮全部地址失败后的延迟倍数'),
+      wsReconnectMaxDelayMs: Schema.number()
+        .min(0)
+        .max(600000)
+        .step(1000)
+        .default(32000)
+        .description('🧢 指数退避最终等待时间硬上限（毫秒）'),
+    }),
+  ]).description('🔁 WebSocket 重连策略参数'),
 
   // ──────────────────────────────────────────────────────────────────────────
   // 📊 第二组：事件报告配置（连接/断开/重连等事件通知到哪）

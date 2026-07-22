@@ -1,13 +1,24 @@
 import { Context, Logger } from 'koishi';
 import { PluginConfig, CommandRequestMessage, CommandResultMessage, CommandSender } from './types';
-import { MessageHandler } from './messageHandler';
+import { MessageHandler } from './message';
 
 const logger = new Logger('mclistener-ws-client:client');
+type ClientWebSocket = ReturnType<Context['http']['ws']> & {
+  on(event: 'pong', listener: () => void): void;
+  ping(): void;
+  terminate(): void;
+};
 
 export class MclistenerWsClient {
-  private ws: WebSocket | null = null;
+  private ws: ClientWebSocket | null = null;
   private isConnecting = false;
   private reconnectTimer: NodeJS.Timeout | null = null;
+  private heartbeatTimer: NodeJS.Timeout | null = null;
+  private lastPongAt = 0;
+  private connectionStable = false;
+  private serverUrls: string[];
+  private currentServerIndex = 0;
+  private consecutiveFailures = 0;
   private instanceId: string;
   private isDisposed = false;
   private messageHandler: MessageHandler;
@@ -21,6 +32,7 @@ export class MclistenerWsClient {
   ) {
     this.instanceId = Math.random().toString(36).substring(7);
     this.messageHandler = new MessageHandler(ctx, config);
+    this.serverUrls = this.buildServerUrlList();
     
     if (this.config.verboseConsoleOutput) {
       logger.info(`[DEBUG] 创建WS客户端实例: ${this.instanceId}`);
@@ -35,87 +47,199 @@ export class MclistenerWsClient {
       return;
     }
     
-    if (this.isConnecting || this.ws?.readyState === WebSocket.OPEN) {
+    if (this.isConnecting || (this.ws && this.ws.readyState === this.ws.OPEN)) {
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] 跳过连接: isConnecting=${this.isConnecting}, readyState=${this.ws?.readyState}`);
       }
       return;
     }
 
-    this.isConnecting = true;
-    let wsUrl = this.config.wsServerUrl;
-    if (this.config.wsToken) {
-      const separator = wsUrl.includes('?') ? '&' : '?';
-      wsUrl = `${wsUrl}${separator}token=${this.config.wsToken}`;
+    const serverUrl = this.serverUrls[this.currentServerIndex];
+    if (!serverUrl) {
+      logger.error('❌ 没有可用的 WebSocket 服务器地址，请检查 wsServerUrl 配置');
+      return;
     }
+
+    this.isConnecting = true;
+    this.connectionStable = false;
     if (this.config.verboseConsoleOutput) {
       logger.info(`[DEBUG] [${this.instanceId}] 开始连接到WS服务器`);
     }
-    logger.info(`🔌 尝试连接到 WS 服务器: ${this.config.wsServerUrl}`);
+    logger.info(`🔌 尝试连接到 WS 服务器: ${serverUrl}`);
 
     try {
-      this.ws = this.ctx.http.ws(wsUrl);
-      this.setupListeners();
+      const wsUrl = this.withToken(serverUrl);
+      const socket = this.ctx.http.ws(wsUrl, {
+        timeout: this.config.wsConnectTimeoutMs ?? 10000,
+      }) as ClientWebSocket;
+      this.ws = socket;
+      this.setupListeners(socket, serverUrl);
     } catch (e) {
       this.isConnecting = false;
-      logger.error(`❌ 连接失败: ${e.message}`);
-      this.scheduleReconnect();
+      this.ws = null;
+      logger.error(`❌ 连接失败: ${e instanceof Error ? e.message : String(e)}`);
+      this.handleConnectionFailure(false);
     }
   }
 
-  private setupListeners(): void {
+  private setupListeners(socket: ClientWebSocket, serverUrl: string): void {
     if (this.config.verboseConsoleOutput) {
       logger.info(`[DEBUG] [${this.instanceId}] 设置WS事件监听器`);
     }
 
-    this.ws!.onopen = () => {
+    let opened = false;
+
+    socket.onopen = () => {
+      if (socket !== this.ws || this.isDisposed) return;
+      opened = true;
       this.isConnecting = false;
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] WS连接已打开`);
       }
-      logger.success('✅ 成功连接到 WS 服务器');
-      
-      if (this.reconnectTimer) {
-        clearInterval(this.reconnectTimer);
-        this.reconnectTimer = null;
-      }
-      
-      const connectMsg = `[mclistener-ws-client]\n✅ 成功连接到WS: ${this.config.wsServerUrl}`;
+      logger.success(`✅ 成功连接到 WS 服务器: ${serverUrl}`);
+      this.startHeartbeat(socket, serverUrl);
+      if (!this.config.enableWsHeartbeat) this.markConnectionStable();
+
+      const connectMsg = `[mclistener-ws-client]\n✅ 成功连接到WS: ${serverUrl}`;
       this.sendReport(connectMsg);
     };
 
-    this.ws!.onmessage = (event) => {
+    socket.onmessage = (event) => {
+      if (socket !== this.ws || this.isDisposed) return;
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] 收到WS消息: ${event.data}`);
       }
       this.handleMessage(event.data as string);
     };
 
-    this.ws!.onclose = (event) => {
+    socket.onclose = (event) => {
+      if (socket !== this.ws) return;
+      this.ws = null;
       this.isConnecting = false;
+      this.stopHeartbeat();
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] WS连接关闭事件: code=${event.code}, reason=${event.reason}`);
       }
       logger.warn(`🔌 WS 连接已关闭，代码: ${event.code}, 原因: ${event.reason}`);
-      
-      const disconnectMsg = `[mclistener-ws-client]\n🔌 WS连接已断开 (服务器: ${this.config.wsServerUrl})，正在尝试重连...`;
+
+      const disconnectMsg = `[mclistener-ws-client]\n🔌 WS连接已断开 (服务器: ${serverUrl})，正在尝试重连...`;
       this.sendReport(disconnectMsg);
-      
-      this.scheduleReconnect();
+
+      if (!this.isDisposed) this.handleConnectionFailure(opened);
     };
 
-    this.ws!.onerror = (error) => {
+    socket.onerror = (error) => {
+      if (socket !== this.ws || this.isDisposed) return;
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] WS连接错误: ${JSON.stringify(error)}`);
       }
       logger.error(`❌ WS 连接错误: ${JSON.stringify(error)}`);
-      
-      const errorMsg = `[mclistener-ws-client]\n❌ WS连接发生错误 (服务器: ${this.config.wsServerUrl}): ${JSON.stringify(error)}`;
+
+      const errorMsg = `[mclistener-ws-client]\n❌ WS连接发生错误 (服务器: ${serverUrl}): ${JSON.stringify(error)}`;
       this.sendReport(errorMsg);
     };
   }
 
-  private scheduleReconnect(): void {
+  private buildServerUrlList(): string[] {
+    const candidates = [this.config.wsServerUrl, ...(this.config.wsFallbackServerUrlList ?? [])]
+      .map(url => url?.trim())
+      .filter((url): url is string => !!url);
+    return [...new Set(candidates)];
+  }
+
+  private withToken(serverUrl: string): string {
+    if (!this.config.wsToken) return serverUrl;
+    const url = new URL(serverUrl);
+    url.searchParams.set('token', this.config.wsToken);
+    return url.toString();
+  }
+
+  private startHeartbeat(socket: ClientWebSocket, serverUrl: string): void {
+    this.stopHeartbeat();
+    if (!this.config.enableWsHeartbeat) return;
+
+    const intervalMs = Math.max(1000, this.config.wsHeartbeatIntervalMs ?? 30000);
+    const timeoutMs = Math.max(intervalMs, this.config.wsHeartbeatTimeoutMs ?? 90000);
+    this.lastPongAt = Date.now();
+
+    socket.on('pong', () => {
+      if (socket !== this.ws || this.isDisposed) return;
+      this.lastPongAt = Date.now();
+      this.markConnectionStable();
+      if (this.config.verboseConsoleOutput) {
+        logger.info(`[DEBUG] [${this.instanceId}] 收到 WS Pong: ${serverUrl}`);
+      }
+    });
+
+    const heartbeat = () => {
+      if (socket !== this.ws || socket.readyState !== socket.OPEN || this.isDisposed) return;
+      const silenceMs = Date.now() - this.lastPongAt;
+      if (silenceMs >= timeoutMs) {
+        logger.warn(`💔 WS 心跳超时 (${silenceMs}ms): ${serverUrl}`);
+        socket.terminate();
+        return;
+      }
+      try {
+        socket.ping();
+        if (this.config.verboseConsoleOutput) {
+          logger.info(`[DEBUG] [${this.instanceId}] 发送 WS Ping: ${serverUrl}`);
+        }
+      } catch (e) {
+        logger.warn(`💔 WS Ping 发送失败: ${e instanceof Error ? e.message : String(e)}`);
+        socket.terminate();
+      }
+    };
+
+    heartbeat();
+    this.heartbeatTimer = setInterval(heartbeat, intervalMs);
+  }
+
+  private stopHeartbeat(): void {
+    if (!this.heartbeatTimer) return;
+    clearInterval(this.heartbeatTimer);
+    this.heartbeatTimer = null;
+  }
+
+  private markConnectionStable(): void {
+    if (this.connectionStable) return;
+    this.connectionStable = true;
+    this.consecutiveFailures = 0;
+    if (this.config.verboseConsoleOutput) {
+      logger.info(`[DEBUG] [${this.instanceId}] WS连接已稳定，重连退避状态已清零`);
+    }
+  }
+
+  private handleConnectionFailure(immediate: boolean): void {
+    if (this.isDisposed || this.serverUrls.length === 0) return;
+    this.consecutiveFailures++;
+    this.currentServerIndex = (this.currentServerIndex + 1) % this.serverUrls.length;
+    this.scheduleReconnect(immediate ? 0 : this.calculateReconnectDelay());
+  }
+
+  private calculateReconnectDelay(): number {
+    let baseDelay: number;
+    if (this.config.wsReconnectStrategy === 'fixed') {
+      baseDelay = Math.max(0, this.config.wsReconnectFixedDelayMs ?? 5000);
+    } else {
+      const initialDelay = Math.max(0, this.config.wsReconnectInitialDelayMs ?? 1000);
+      const multiplier = Math.max(1, this.config.wsReconnectMultiplier ?? 2);
+      const maxDelay = Math.max(0, this.config.wsReconnectMaxDelayMs ?? 32000);
+      const endpointCount = Math.max(1, this.serverUrls.length);
+      const exponent = endpointCount === 1
+        ? Math.max(0, this.consecutiveFailures - 1)
+        : Math.floor(this.consecutiveFailures / endpointCount);
+      baseDelay = Math.min(maxDelay, initialDelay * multiplier ** exponent);
+    }
+
+    const jitterRatio = Math.min(0.5, Math.max(0, this.config.wsReconnectJitterRatio ?? 0.1));
+    const jitteredDelay = baseDelay * (1 + (Math.random() * 2 - 1) * jitterRatio);
+    const hardMax = this.config.wsReconnectStrategy === 'exponential'
+      ? Math.max(0, this.config.wsReconnectMaxDelayMs ?? 32000)
+      : Number.POSITIVE_INFINITY;
+    return Math.round(Math.min(hardMax, Math.max(0, jitteredDelay)));
+  }
+
+  private scheduleReconnect(delayMs: number): void {
     if (this.isDisposed) {
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] 实例已disposed，取消重连`);
@@ -130,15 +254,16 @@ export class MclistenerWsClient {
       return;
     }
 
-    if (this.config.verboseConsoleOutput) {
-      logger.info(`[DEBUG] [${this.instanceId}] 设置重连定时器`);
-    }
-    const reconnectMsg = `[mclistener-ws-client]\n🔌 5s 后尝试重连 WS 服务器: ${this.config.wsServerUrl}`;
+    const nextServerUrl = this.serverUrls[this.currentServerIndex];
+    const reconnectMsg = delayMs === 0
+      ? `[mclistener-ws-client]\n🔌 立即尝试下一个 WS 服务器: ${nextServerUrl}`
+      : `[mclistener-ws-client]\n🔌 ${(delayMs / 1000).toFixed(2)}s 后尝试 WS 服务器: ${nextServerUrl}`;
     if (this.config.enableConsoleLogReport) {
       logger.info(reconnectMsg);
     }
-    
+
     this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
       if (!this.isDisposed) {
         this.connect();
       } else {
@@ -146,8 +271,7 @@ export class MclistenerWsClient {
           logger.info(`[DEBUG] [${this.instanceId}] 重连定时器触发时实例已disposed，取消重连`);
         }
       }
-      this.reconnectTimer = null;
-    }, 5000);
+    }, delayMs);
   }
 
   /**
@@ -194,7 +318,7 @@ export class MclistenerWsClient {
   }
 
   public isConnected(): boolean {
-    return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
+    return this.ws !== null && this.ws.readyState === this.ws.OPEN;
   }
 
   public sendCommand(command: string, sender: CommandSender): Promise<CommandResultMessage> {
@@ -278,7 +402,7 @@ export class MclistenerWsClient {
    * 转发聊天平台消息到服务器
    */
   public forwardPlatformMessageToServer(session: any): void {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+    if (!this.ws || this.ws.readyState !== this.ws.OPEN) {
       logger.warn('❌ WebSocket 未连接，无法转发消息到服务器');
       return;
     }
@@ -313,6 +437,14 @@ export class MclistenerWsClient {
       pending.reject(new Error('WS客户端已销毁'));
     }
     this.pendingRequests.clear();
+
+    for (const pending of this.pendingNoDedupCallbacks.values()) {
+      clearTimeout(pending.timer);
+      pending.callback(null);
+    }
+    this.pendingNoDedupCallbacks.clear();
+
+    this.stopHeartbeat();
     
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
@@ -322,9 +454,14 @@ export class MclistenerWsClient {
       }
     }
     
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
+    const socket = this.ws;
+    this.ws = null;
+    if (socket) {
+      try {
+        socket.close(1000, 'plugin disposed');
+      } catch {
+        socket.terminate();
+      }
       if (this.config.verboseConsoleOutput) {
         logger.info(`[DEBUG] [${this.instanceId}] 已关闭WebSocket连接`);
       }

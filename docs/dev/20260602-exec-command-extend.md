@@ -39,7 +39,7 @@ Koishi 指令 -> Koishi WS 客户端 -> MCDR WS 服务端 -> MCDR 插件侧调�
 
 - `src/types.ts`
 - `src/client.ts`
-- `src/messageHandler.ts`
+- `src/message.ts`
 - `src/index.ts`
 
 其中 `src/index.ts` 当前也还**没有注册 Koishi 指令**，只有聊天消息转发中间件。
@@ -220,7 +220,7 @@ ws://127.0.0.1:60601?token=test12345
 - `CommandResultMessage`
 - 扩展服务端消息联合类型
 
-这样后面 `client.ts` / `messageHandler.ts` 不会再靠裸 `any`。
+这样后面 `client.ts` / `message.ts` 不会再靠裸 `any`。
 
 #### 5.2 在 `src/client.ts` 中补请求-响应能力
 
