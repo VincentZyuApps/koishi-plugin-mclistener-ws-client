@@ -136,7 +136,7 @@ export const Config = Schema.intersect([
     enableAddDateTimePrefix: Schema.boolean()
       .default(true)
       .description('🕐 启用添加日期时间前缀 📅<br>💡 转发到聊天平台时，消息前面会带上时间戳'),
-    targetPlatformChannelList: Schema.array(
+    targetPlatformChannels: Schema.array(
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
         selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
@@ -155,10 +155,10 @@ export const Config = Schema.intersect([
   // 📥 第四组：来源平台配置（聊天平台消息 → 服务器）
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
-    stripMessageWhitespace: Schema.boolean()
+    normalizePlatformChatWhitespace: Schema.boolean()
       .default(true)
       .description('🧹 清理消息中的换行和制表符 ✂️<br>💡 将 \\n \\r \\t 替换为空格，压缩连续空格，避免游戏内消息断裂'),
-    sourcePlatformChannelList: Schema.array(
+    sourcePlatformChannels: Schema.array(
       Schema.object({
         platform: Schema.string().description('🏷️ 平台名称'),
         selfId: Schema.string().default('').description('🤖 Bot 账号 selfId；留空时按 useFirstBotWhenSelfIdEmpty 决定使用第一个或所有同平台 Bot'),
@@ -177,10 +177,10 @@ export const Config = Schema.intersect([
   // 🚪 第五组：玩家加入消息转发配置
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
-    enableForwardPlayerJoin: Schema.boolean()
+    enableServerToPlatformPlayerJoin: Schema.boolean()
       .default(true)
-      .description('✅ 启用转发 服务器玩家加入消息 到 聊天平台 🎉<br>⚠️ 会尊重 targetPlatformChannelList 配置项，只发到其中已启用的频道~'),
-    customizePlayerJoinMsg: Schema.string()
+      .description('✅ 启用转发 服务器玩家加入消息 到 聊天平台 🎉<br>⚠️ 会尊重 targetPlatformChannels 配置项，只发到其中已启用的频道~'),
+    playerJoinMessageTemplate: Schema.string()
       .role('textarea', { rows: [2, 5] })
       .default('🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨')
       .description('✏️ 自定义玩家加入消息 📝<br>🔤 %PLAYER% 会被替换为玩家名称'),
@@ -190,10 +190,10 @@ export const Config = Schema.intersect([
   // 🚶 第六组：玩家离开消息转发配置
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
-    enableForwardPlayerLeave: Schema.boolean()
+    enableServerToPlatformPlayerLeave: Schema.boolean()
       .default(true)
-      .description('✅ 启用转发 服务器玩家离开消息 到 聊天平台 😢<br>⚠️ 会尊重 targetPlatformChannelList 配置项，只发到其中已启用的频道~'),
-    customizePlayerLeaveMsg: Schema.string()
+      .description('✅ 启用转发 服务器玩家离开消息 到 聊天平台 😢<br>⚠️ 会尊重 targetPlatformChannels 配置项，只发到其中已启用的频道~'),
+    playerLeaveMessageTemplate: Schema.string()
       .role('textarea', { rows: [2, 5] })
       .default('😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋')
       .description('✏️ 自定义玩家离开消息 📝<br>🔤 %PLAYER% 会被替换为玩家名称'),
@@ -203,33 +203,36 @@ export const Config = Schema.intersect([
   // 💬 第七组：玩家聊天消息转发配置
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
-    enableForwardPlayerChat: Schema.boolean()
+    enableServerToPlatformPlayerChat: Schema.boolean()
       .default(true)
       .description('✅ 启用转发 服务器玩家聊天消息 到 聊天平台 🔈<br>💡 玩家在服里说话会同步到群里~'),
-    customizePlayerChatMsg: Schema.string()
+    playerChatMessageTemplate: Schema.string()
       .role('textarea', { rows: [2, 5] })
       .default('🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%')
       .description('✏️ 自定义玩家聊天消息 📝<br>🔤 %PLAYER% → 玩家名称，%CONTENT% → 聊天内容'),
-    enableFowardMsgPrefixWhitelistCheck: Schema.boolean()
+    enableServerChatPrefixAllowlist: Schema.boolean()
       .default(false)
-      .description('⚪ 启用聊天消息前缀白名单检查 ✅<br>💡 只转发指定前缀的聊天消息<br>📌 比如不想让服里所有聊天都刷到群里，可以告诉玩家用 "!!" 开头才会转发'),
-    fowardMsgPrefixWhitelistList: Schema.array(String)
+      .description('⚪ 启用服务器聊天允许前缀检查 ✅<br>💡 只转发带有指定前缀的服务器聊天消息<br>📌 比如设置 # 后，玩家需要用 # 开头才会转发到聊天平台'),
+    serverChatAllowedPrefixes: Schema.array(String)
       .role('table')
       .default(['#'])
-      .description('✅ 聊天消息前缀白名单列表 📋<br>💡 启用前缀检查后生效<br>🔤 默认值是 !! 两个英文感叹号，你也可以设置多个'),
-    enableForwardMsgPrefixBlacklistCheck: Schema.boolean()
+      .description('✅ 服务器聊天允许前缀列表 📋<br>💡 启用允许前缀检查后生效<br>🔤 默认值是 # 井号，也可以设置多个'),
+    stripServerChatPrefix: Schema.boolean()
       .default(true)
-      .description('⚫ 启用聊天消息前缀黑名单检查 🚫<br>💡 阻止转发指定前缀的聊天消息<br>📌 比如不想让服务器的斜杠命令(/)转发到群里，就启用这个'),
-    fowardMsgPrefixBlacklistList: Schema.array(String)
+      .description('✂️ 转发服务器聊天时去掉已匹配的允许前缀<br>💡 仅在启用允许前缀检查并成功匹配后生效'),
+    enableServerChatPrefixBlocklist: Schema.boolean()
+      .default(true)
+      .description('⚫ 启用服务器聊天阻止前缀检查 🚫<br>💡 阻止转发带有指定前缀的服务器聊天消息<br>📌 比如不想让服务器的斜杠命令(/)转发到群里，就启用这个'),
+    serverChatBlockedPrefixes: Schema.array(String)
       .role('table')
       .default(['/', '!!'])
-      .description('❌ 聊天消息前缀黑名单列表 📋<br>💡 启用前缀黑名单检查后生效<br>🔤 默认值是 / 斜杠，你可以设置多个'),
-    enableSenderBlacklistCheck: Schema.boolean()
+      .description('❌ 服务器聊天阻止前缀列表 📋<br>💡 启用阻止前缀检查后生效<br>🔤 默认值是 / 和 !!，你可以设置多个'),
+    enableServerChatSenderBlocklist: Schema.boolean()
       .default(false)
-      .description('🚫 启用发送者黑名单检查 🚷<br>💡 阻止转发指定玩家的聊天消息<br>📌 比如不想让某个玩家的消息转发到群里面，就可以把他拉黑'),
-    senderBlacklistList: Schema.array(String)
+      .description('🚫 启用服务器聊天发送者阻止列表检查 🚷<br>💡 阻止转发指定玩家的聊天消息<br>📌 比如不想让某个玩家的消息转发到群里面，就可以把他加入阻止列表'),
+    serverChatBlockedSenders: Schema.array(String)
       .default(['Server'])
-      .description('🚷 发送者黑名单列表 📋<br>💡 启用发送者黑名单检查后生效<br>🔤 默认值是 Server，这样后台 console 执行的指令消息就不会转发到群里'),
+      .description('🚷 服务器聊天阻止发送者列表 📋<br>💡 启用发送者阻止列表检查后生效<br>🔤 默认值是 Server，这样后台 console 执行的指令消息就不会转发到群里'),
   }).description('💬 玩家聊天消息转发配置【🎮 服内聊天 → 💬 聊天平台】'),
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -263,16 +266,19 @@ export const Config = Schema.intersect([
   // 🔄 第八组：聊天平台消息转发到服务器配置
   // ──────────────────────────────────────────────────────────────────────────
   Schema.object({
-    enableFowardPlatformChat: Schema.boolean()
+    enablePlatformToServerChat: Schema.boolean()
       .default(true)
       .description('✅ 启用转发 聊天平台信息 到 服务器 🔄<br>💡 群里说话可以发到服务器里~'),
-    platformChatPrefixCheck: Schema.boolean()
+    enablePlatformChatPrefixAllowlist: Schema.boolean()
       .default(false)
-      .description('🔍 启用平台聊天消息前缀检查 🏷️<br>💡 只转发指定前缀的消息到服务器<br>📌 比如设置 # 开头才转发，避免所有聊天平台都刷进服'),
-    platformChatPrefixList: Schema.array(String)
+      .description('🔍 启用平台聊天允许前缀检查 🏷️<br>💡 只转发带有指定前缀的消息到服务器<br>📌 比如设置 # 开头才转发，避免所有聊天平台消息都刷进服'),
+    platformChatAllowedPrefixes: Schema.array(String)
       .role('table')
       .default(['#'])
-      .description('📝 平台聊天消息前缀列表 📋<br>💡 启用前缀检查后生效<br>🔤 默认值是 # 井号'),
+      .description('📝 平台聊天允许前缀列表 📋<br>💡 启用允许前缀检查后生效<br>🔤 默认值是 # 井号'),
+    stripPlatformChatPrefix: Schema.boolean()
+      .default(true)
+      .description('✂️ 转发平台聊天时去掉已匹配的允许前缀<br>💡 仅在启用允许前缀检查并成功匹配后生效'),
     excludeBotMessages: Schema.boolean()
       .default(true)
       .description('🤖 排除机器人自己发送的消息 🚫<br>💡 避免机器人说的话又被自己转发到服务器，死循环啦~'),
@@ -308,10 +314,10 @@ export const Config = Schema.intersect([
     execCommandMaxReplyLength: Schema.number()
       .default(1500)
       .description('📏 回复最大字符数 ✂️<br>💡 超长截断，避免刷屏'),
-    noDeduplicate: Schema.boolean()
+    deduplicateCommandResults: Schema.boolean()
       .experimental()
-      .default(false)
-      .description('🔄 指令执行结果不去重，每条command_result立即返回 📨<br> <i> 💡 可用于调试，配合<a href="https://github.com/VincentZyuApps/CounterStrikeSharpListenerWsServer" target="_blank">css服务端插件</a>的execCommandMode:both查看双路径执行情况 </i>'),
+      .default(true)
+      .description('🔄 指令执行结果去重，同一请求只处理第一条 command_result 📨<br> <i> 💡 关闭后每条结果都会立即返回，可用于调试 CSS 服务端插件的 execCommandMode:both 双路径执行情况 </i>'),
   }).description('🔐 远程命令执行配置【🤖 Koishi → 🎮 MC 服务器】<br>⚠️ 请谨慎配置，确保安全'),
 
   // ──────────────────────────────────────────────────────────────────────────

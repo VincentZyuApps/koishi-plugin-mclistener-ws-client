@@ -6,6 +6,23 @@ import { resolveBots } from './bot';
 
 const logger = new Logger('mclistener-ws-client:handler');
 
+function findLongestMatchingPrefix(content: string, prefixes: string[]): string | undefined {
+  let matchedPrefix: string | undefined;
+
+  for (const prefix of prefixes) {
+    if (!prefix || !content.startsWith(prefix)) continue;
+    if (!matchedPrefix || prefix.length > matchedPrefix.length) {
+      matchedPrefix = prefix;
+    }
+  }
+
+  return matchedPrefix;
+}
+
+function stripMatchedPrefix(content: string, prefix: string): string {
+  return content.substring(prefix.length).trimStart();
+}
+
 export class MessageHandler {
   constructor(
     private ctx: Context,
@@ -33,53 +50,68 @@ export class MessageHandler {
       let msg = '';
       let markdown = '';
       
-      if (type === 'player_join' && this.config.enableForwardPlayerJoin) {
-        msg = renderTemplate(this.config.customizePlayerJoinMsg, vars);
+      if (type === 'player_join' && this.config.enableServerToPlatformPlayerJoin) {
+        msg = renderTemplate(this.config.playerJoinMessageTemplate, vars);
         if (this.config.enableQQMarkdownPlayerJoin) {
           markdown = renderTemplate(this.config.qqMarkdownPlayerJoinTemplate, vars);
         }
-      } else if (type === 'player_leave' && this.config.enableForwardPlayerLeave) {
-        msg = renderTemplate(this.config.customizePlayerLeaveMsg, vars);
+      } else if (type === 'player_leave' && this.config.enableServerToPlatformPlayerLeave) {
+        msg = renderTemplate(this.config.playerLeaveMessageTemplate, vars);
         if (this.config.enableQQMarkdownPlayerLeave) {
           markdown = renderTemplate(this.config.qqMarkdownPlayerLeaveTemplate, vars);
         }
-      } else if (type === 'player_chat' && this.config.enableForwardPlayerChat) {
-        // 白名单检查
-        if (this.config.enableFowardMsgPrefixWhitelistCheck) {
-          const prefixWhitelistMatch = this.config.fowardMsgPrefixWhitelistList.some(
-            (prefix) => content?.startsWith(prefix)
+      } else if (type === 'player_chat' && this.config.enableServerToPlatformPlayerChat) {
+        const originalContent = content || '';
+        let allowedPrefix: string | undefined;
+
+        // 允许前缀检查
+        if (this.config.enableServerChatPrefixAllowlist) {
+          allowedPrefix = findLongestMatchingPrefix(
+            originalContent,
+            this.config.serverChatAllowedPrefixes
           );
-          if (!prefixWhitelistMatch) {
-            logger.info(`⚠️ 忽略不符合前缀白名单的消息: ${content}`);
+          if (!allowedPrefix) {
+            logger.info(`⚠️ 忽略不符合服务器聊天允许前缀要求的消息: ${content}`);
             return null;
           }
         }
 
-        // 黑名单检查
-        if (this.config.enableForwardMsgPrefixBlacklistCheck) {
-          const prefixBlacklistMatch = this.config.fowardMsgPrefixBlacklistList.some(
-            (prefix) => content?.startsWith(prefix)
+        // 阻止前缀检查
+        if (this.config.enableServerChatPrefixBlocklist) {
+          const blockedPrefix = findLongestMatchingPrefix(
+            originalContent,
+            this.config.serverChatBlockedPrefixes
           );
-          if (prefixBlacklistMatch) {
-            logger.info(`🚫 忽略符合前缀黑名单的消息: ${content}`);
+          if (blockedPrefix) {
+            logger.info(`🚫 忽略符合服务器聊天阻止前缀的消息: ${content}`);
             return null;
           }
         }
 
-        // 发送者黑名单检查
-        if (this.config.enableSenderBlacklistCheck) {
-          const senderBlacklistMatch = this.config.senderBlacklistList.some(
+        // 发送者阻止列表检查
+        if (this.config.enableServerChatSenderBlocklist) {
+          const blockedSenderMatch = this.config.serverChatBlockedSenders.some(
             (name) => player_name === name
           );
-          if (senderBlacklistMatch) {
-            logger.info(`🚫 忽略黑名单玩家的消息: ${player_name}: ${content}`);
+          if (blockedSenderMatch) {
+            logger.info(`🚫 忽略服务器聊天阻止列表中的发送者消息: ${player_name}: ${content}`);
             return null;
           }
         }
 
-        msg = renderTemplate(this.config.customizePlayerChatMsg, vars);
+        const forwardedContent = this.config.enableServerChatPrefixAllowlist
+          && this.config.stripServerChatPrefix
+          && allowedPrefix
+          ? stripMatchedPrefix(originalContent, allowedPrefix)
+          : originalContent;
+        const chatVars: TemplateVars = {
+          ...vars,
+          content: forwardedContent,
+        };
+
+        msg = renderTemplate(this.config.playerChatMessageTemplate, chatVars);
         if (this.config.enableQQMarkdownPlayerChat) {
-          markdown = renderTemplate(this.config.qqMarkdownPlayerChatTemplate, vars);
+          markdown = renderTemplate(this.config.qqMarkdownPlayerChatTemplate, chatVars);
         }
       }
 
@@ -141,17 +173,24 @@ export class MessageHandler {
         }
       }
 
-      // 如果启用了前缀检查，去掉前缀
-      if (this.config.platformChatPrefixCheck) {
-        for (const prefix of this.config.platformChatPrefixList) {
-          if (messageContent.startsWith(prefix)) {
-            messageContent = messageContent.substring(prefix.length).trim();
-            break;
+      // 允许前缀检查和可选剥离
+      if (this.config.enablePlatformChatPrefixAllowlist) {
+        const allowedPrefix = findLongestMatchingPrefix(
+          messageContent,
+          this.config.platformChatAllowedPrefixes
+        );
+        if (!allowedPrefix) {
+          if (this.config.verboseConsoleOutput) {
+            logger.info(`[DEBUG] ⚠️ 消息不符合平台聊天允许前缀要求，跳过转发`);
           }
+          return null;
+        }
+        if (this.config.stripPlatformChatPrefix) {
+          messageContent = stripMatchedPrefix(messageContent, allowedPrefix);
         }
       }
 
-      if (this.config.stripMessageWhitespace) {
+      if (this.config.normalizePlatformChatWhitespace) {
         messageContent = messageContent.replace(/[\r\n\t]+/g, ' ').replace(/ +/g, ' ').trim();
       }
 
@@ -179,7 +218,7 @@ export class MessageHandler {
    * 发送消息到配置的频道
    */
   public async sendMessageToChannels(message: RenderedServerMessage): Promise<void> {
-    for (const target of this.config.targetPlatformChannelList) {
+    for (const target of this.config.targetPlatformChannels) {
       if (target.enable !== true) {
         if (this.config.verboseConsoleOutput) {
           logger.info(`⚠️ 跳过未启用的目标频道: ${target.platform}:${target.channelId}`);

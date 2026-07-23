@@ -50,9 +50,9 @@ export function registerCommands(
         nickname: session?.author?.nickname || session?.author?.username || session?.username || '未知用户',
       };
 
-      if (config.noDeduplicate) {
+      if (!config.deduplicateCommandResults) {
         // 不去重模式：每条 command_result 立即回调，用于调试
-        client.sendCommandNoDeduplicate(cmd, sender, (result) => {
+        client.sendCommandForAllResults(cmd, sender, (result) => {
           if (!result) {
             session.send(`${quote}❌ 命令执行超时`);
             return;

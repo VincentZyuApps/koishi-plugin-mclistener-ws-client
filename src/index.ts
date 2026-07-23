@@ -52,7 +52,7 @@ export function apply(ctx: Context, config: PluginConfig) {
   });
 
   // 注册中间件来处理聊天平台消息转发到服务器
-  if (config.enableFowardPlatformChat) {
+  if (config.enablePlatformToServerChat) {
     if (config.verboseConsoleOutput) {
       logger.info(`[DEBUG] 注册中间件处理聊天平台消息转发`);
     }
@@ -71,10 +71,10 @@ export function apply(ctx: Context, config: PluginConfig) {
       }
 
       // 检查是否为目标来源平台和频道
-      // const isSourcePlatform = config.sourcePlatformChannelList.some(
+      // const isSourcePlatform = config.sourcePlatformChannels.some(
       //   (source) => source.platform === session.platform && source.channelId === session.channelId
       // );
-      const matchedSource = config.sourcePlatformChannelList.find(
+      const matchedSource = config.sourcePlatformChannels.find(
         (source) => source.platform === session.platform
           && (!source.selfId || source.selfId === session.bot.selfId)
           && source.channelId === session.channelId
@@ -98,19 +98,6 @@ export function apply(ctx: Context, config: PluginConfig) {
         if (isBotMessage) {
           if (config.verboseConsoleOutput) {
             logger.info(`[DEBUG] 🤖 排除机器人消息: userId=${session.userId}, botId=${session.bot.selfId}, authorId=${session.author?.userId}, nickname=${session.author?.nickname}`);
-          }
-          return next();
-        }
-      }
-
-      // 检查前缀
-      if (config.platformChatPrefixCheck) {
-        const hasPrefix = config.platformChatPrefixList.some((prefix) => 
-          session.content.startsWith(prefix)
-        );
-        if (!hasPrefix) {
-          if (config.verboseConsoleOutput) {
-            logger.info(`[DEBUG] ⚠️ 消息不符合前缀要求，跳过转发`);
           }
           return next();
         }

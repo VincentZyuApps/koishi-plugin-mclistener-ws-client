@@ -23,7 +23,7 @@ export class MclistenerWsClient {
   private isDisposed = false;
   private messageHandler: MessageHandler;
   private pendingRequests: Map<string, { resolve: (value: CommandResultMessage) => void; reject: (reason: Error) => void; timer: NodeJS.Timeout }> = new Map();
-  private pendingNoDedupCallbacks: Map<string, { callback: (r: CommandResultMessage | null) => void; timer: NodeJS.Timeout }> = new Map();
+  private pendingAllResultCallbacks: Map<string, { callback: (r: CommandResultMessage | null) => void; timer: NodeJS.Timeout }> = new Map();
   private requestCounter = 0;
 
   constructor(
@@ -300,9 +300,9 @@ export class MclistenerWsClient {
           this.pendingRequests.delete(result.request_id);
           pending.resolve(result);
         }
-        const noDedup = this.pendingNoDedupCallbacks.get(result.request_id);
-        if (noDedup) {
-          noDedup.callback(result);
+        const allResults = this.pendingAllResultCallbacks.get(result.request_id);
+        if (allResults) {
+          allResults.callback(result);
         }
         return;
       }
@@ -360,7 +360,7 @@ export class MclistenerWsClient {
   /**
    * 发送命令（不去重模式）—— 每条 command_result 都回调，超时回调 null
    */
-  public sendCommandNoDeduplicate(command: string, sender: CommandSender, onResult: (r: CommandResultMessage | null) => void): void {
+  public sendCommandForAllResults(command: string, sender: CommandSender, onResult: (r: CommandResultMessage | null) => void): void {
     if (!this.isConnected()) {
       onResult(null);
       return;
@@ -377,23 +377,23 @@ export class MclistenerWsClient {
     };
 
     const timer = setTimeout(() => {
-      const entry = this.pendingNoDedupCallbacks.get(request_id);
+      const entry = this.pendingAllResultCallbacks.get(request_id);
       if (entry) {
-        this.pendingNoDedupCallbacks.delete(request_id);
+        this.pendingAllResultCallbacks.delete(request_id);
         entry.callback(null);
       }
     }, this.config.execCommandTimeoutMs || 10000);
 
-    this.pendingNoDedupCallbacks.set(request_id, { callback: onResult, timer });
+    this.pendingAllResultCallbacks.set(request_id, { callback: onResult, timer });
 
     try {
       this.ws!.send(JSON.stringify(request));
       if (this.config.verboseConsoleOutput) {
-        logger.info(`[DEBUG] [${this.instanceId}] ⚡ 发送命令(noDedup): ${command}, request_id: ${request_id}`);
+        logger.info(`[DEBUG] [${this.instanceId}] ⚡ 发送命令(allResults): ${command}, request_id: ${request_id}`);
       }
     } catch (e) {
       clearTimeout(timer);
-      this.pendingNoDedupCallbacks.delete(request_id);
+      this.pendingAllResultCallbacks.delete(request_id);
       onResult(null);
     }
   }
@@ -402,13 +402,13 @@ export class MclistenerWsClient {
    * 转发聊天平台消息到服务器
    */
   public forwardPlatformMessageToServer(session: any): void {
+    const wsMessage = this.messageHandler.createPlatformToServerMessage(session);
+    if (!wsMessage) return;
+
     if (!this.ws || this.ws.readyState !== this.ws.OPEN) {
       logger.warn('❌ WebSocket 未连接，无法转发消息到服务器');
       return;
     }
-
-    const wsMessage = this.messageHandler.createPlatformToServerMessage(session);
-    if (!wsMessage) return;
 
     try {
       if (this.config.verboseConsoleOutput) {
@@ -438,11 +438,11 @@ export class MclistenerWsClient {
     }
     this.pendingRequests.clear();
 
-    for (const pending of this.pendingNoDedupCallbacks.values()) {
+    for (const pending of this.pendingAllResultCallbacks.values()) {
       clearTimeout(pending.timer);
       pending.callback(null);
     }
-    this.pendingNoDedupCallbacks.clear();
+    this.pendingAllResultCallbacks.clear();
 
     this.stopHeartbeat();
     

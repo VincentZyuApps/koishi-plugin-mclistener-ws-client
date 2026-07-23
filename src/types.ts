@@ -40,7 +40,7 @@ export interface PluginConfig {
 
   // ---- 📤 转发目的地配置 ----
   enableAddDateTimePrefix: boolean;
-  targetPlatformChannelList: Array<{
+  targetPlatformChannels: Array<{
     platform: string;
     selfId: string;
     channelId: string;
@@ -48,8 +48,8 @@ export interface PluginConfig {
   }>;
 
   // ---- 📥 转发来源配置 ----
-  stripMessageWhitespace: boolean;
-  sourcePlatformChannelList: Array<{
+  normalizePlatformChatWhitespace: boolean;
+  sourcePlatformChannels: Array<{
     platform: string;
     selfId: string;
     channelId: string;
@@ -57,22 +57,23 @@ export interface PluginConfig {
   }>;
 
   // ---- 🚪 玩家加入消息 ----
-  enableForwardPlayerJoin: boolean;
-  customizePlayerJoinMsg: string;
+  enableServerToPlatformPlayerJoin: boolean;
+  playerJoinMessageTemplate: string;
 
   // ---- 🚶 玩家离开消息 ----
-  enableForwardPlayerLeave: boolean;
-  customizePlayerLeaveMsg: string;
+  enableServerToPlatformPlayerLeave: boolean;
+  playerLeaveMessageTemplate: string;
 
   // ---- 💬 玩家聊天消息 ----
-  enableForwardPlayerChat: boolean;
-  customizePlayerChatMsg: string;
-  enableFowardMsgPrefixWhitelistCheck: boolean;
-  fowardMsgPrefixWhitelistList: string[];
-  enableForwardMsgPrefixBlacklistCheck: boolean;
-  fowardMsgPrefixBlacklistList: string[];
-  enableSenderBlacklistCheck: boolean;
-  senderBlacklistList: string[];
+  enableServerToPlatformPlayerChat: boolean;
+  playerChatMessageTemplate: string;
+  enableServerChatPrefixAllowlist: boolean;
+  serverChatAllowedPrefixes: string[];
+  stripServerChatPrefix: boolean;
+  enableServerChatPrefixBlocklist: boolean;
+  serverChatBlockedPrefixes: string[];
+  enableServerChatSenderBlocklist: boolean;
+  serverChatBlockedSenders: string[];
 
   // ---- 🐧 QQ 官方 Bot Markdown ----
   enableQQMarkdownPlayerJoin: boolean;
@@ -83,9 +84,10 @@ export interface PluginConfig {
   qqMarkdownPlayerChatTemplate: string;
 
   // ---- 🔄 平台消息转发 ----
-  enableFowardPlatformChat: boolean;
-  platformChatPrefixCheck: boolean;
-  platformChatPrefixList: string[];
+  enablePlatformToServerChat: boolean;
+  enablePlatformChatPrefixAllowlist: boolean;
+  platformChatAllowedPrefixes: string[];
+  stripPlatformChatPrefix: boolean;
   excludeBotMessages: boolean;
 
   // ---- 🔐 远程命令执行配置 ----
@@ -100,7 +102,7 @@ export interface PluginConfig {
   }>;
   execCommandTimeoutMs: number;
   execCommandMaxReplyLength: number;
-  noDeduplicate: boolean;
+  deduplicateCommandResults: boolean;
 
   // ---- 🐛 调试配置 ----
   verboseConsoleOutput: boolean;

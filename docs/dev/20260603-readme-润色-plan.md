@@ -211,7 +211,7 @@
 1. 在 Koishi 插件市场安装 `mclistener-ws-client`
 2. 配置 `wsServerUrl` 指向服务端地址
 3. 配置 `wsToken` 与服务端一致
-4. 配置 `sourcePlatformList` 和 `targetPlatformChannelList` 为你的群/频道
+4. 配置 `sourcePlatformChannels` 和 `targetPlatformChannels` 为你的群/频道
 
 ### Step 3: 验证
 - 在群里发消息，检查游戏内是否收到
@@ -231,11 +231,11 @@
 # 最小可用配置示例（Koishi 配置界面 → 切换到 YAML 模式）
 wsServerUrl: ws://你的服务器IP:60601
 wsToken: 你的Token
-sourcePlatformList:
+sourcePlatformChannels:
   - platform: onebot
     channelId: 你的QQ群号
     enable: true
-targetPlatformChannelList:
+targetPlatformChannels:
   - platform: onebot
     channelId: 你的QQ群号
     enable: true
@@ -269,7 +269,7 @@ targetPlatformChannelList:
 - 插件支持多实例（`reusable = true`）
 - 依赖 `http` 服务（需安装 `@koishijs/plugin-http` 或 Koishi 内置 HTTP 服务）
 - `wsToken` 通过 URL query `?token=xxx` 传递
-- 每个列表配置项（sourcePlatformList 等）的每个条目都有独立的 `enable` 开关
+- 每个列表配置项（sourcePlatformChannels 等）的每个条目都有独立的 `enable` 开关
 
 ---
 

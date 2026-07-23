@@ -95,8 +95,8 @@ export const usage = `
 <table>
   <tr><th>过滤方式</th><th>说明</th></tr>
   <tr><td>✅ 白名单前缀</td><td>只转发指定前缀的消息（如 <code>#</code>）</td></tr>
-  <tr><td>❌ 黑名单前缀</td><td>阻止转发指定前缀的消息（如 <code>/</code> 命令）</td></tr>
-  <tr><td>🚫 发送者黑名单</td><td>阻止转发指定玩家的消息</td></tr>
+  <tr><td>❌ 阻止前缀</td><td>阻止转发指定前缀的消息（如 <code>/</code> 命令）</td></tr>
+  <tr><td>🚫 发送者阻止列表</td><td>阻止转发指定玩家的消息</td></tr>
   <tr><td>🔍 平台消息前缀检查</td><td>只转发群里指定前缀的消息到服务器</td></tr>
 </table>
 

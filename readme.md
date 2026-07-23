@@ -27,7 +27,7 @@
 
 **mclistener-ws-client** 是一个 Koishi 插件，通过 WebSocket 与你的 Minecraft 服务端双向通信，实现 **群服互通** —— 不止于文字！🎉
 
-💬 玩家进服/离服自动播报，聊天消息实时同步，还支持白名单/黑名单过滤、自定义消息模板等酷炫功能。
+💬 玩家进服/离服自动播报，聊天消息实时同步，还支持允许列表/阻止列表过滤、自定义消息模板等酷炫功能。
 
 根据你的服务端类型，选择对应的服务端插件：
 
@@ -64,7 +64,7 @@
 1. 在 Koishi 插件市场 或者 使用 `npm/yarn` 安装 `mclistener-ws-client`
 2. 配置 `wsServerUrl` 指向服务端 WebSocket 地址（默认 `ws://127.0.0.1:60601`）
 3. 配置 `wsToken` 与服务端 `ws_token` 一致
-4. 配置 `sourcePlatformList` 和 `targetPlatformChannelList` 为你的群/频道
+4. 配置 `sourcePlatformChannels` 和 `targetPlatformChannels` 为你的群/频道
 
 ### Step 3: 验证互通
 
@@ -187,8 +187,8 @@
 | 过滤方式 | 说明 |
 |---------|------|
 | ✅ **白名单前缀** | 只转发指定前缀开头的消息（如 `!!`） |
-| ❌ **黑名单前缀** | 阻止转发指定前缀的消息（如 `/` 命令） |
-| 🚫 **发送者黑名单** | 阻止转发指定玩家的消息（如 `Server`） |
+| ❌ **阻止前缀** | 阻止转发指定前缀的消息（如 `/` 命令） |
+| 🚫 **发送者阻止列表** | 阻止转发指定玩家的消息（如 `Server`） |
 | 🔍 **平台消息前缀检查** | 只转发群里指定前缀的消息到服务器（如 `#`） |
 
 ### ✏️ 自定义消息模板
@@ -234,11 +234,11 @@ yarn add koishi-plugin-mclistener-ws-client
 ```yaml
 wsServerUrl: ws://你的服务器IP:60601
 wsToken: 你的Token
-sourcePlatformList:
+sourcePlatformChannels:
   - platform: onebot
     channelId: 你的QQ群号
     enable: true
-targetPlatformChannelList:
+targetPlatformChannels:
   - platform: onebot
     channelId: 你的QQ群号
     enable: true
@@ -288,54 +288,60 @@ targetPlatformChannelList:
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
 | `enableAddDateTimePrefix` | `true` | 📅 转发时添加日期时间前缀 🕐 |
-| `targetPlatformChannelList` | `[{onebot, 1085190201}]` | 🎯 目标平台频道列表（默认转发到 onebot 群的 1085190201） 📤 |
+| `targetPlatformChannels` | `[{onebot, 1085190201}]` | 🎯 目标平台频道列表（默认转发到 onebot 群的 1085190201） 📤 |
 
 ### 📥 来源平台配置（聊天平台 → 服务器）
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `stripMessageWhitespace` | `true` | 🧹 清理消息中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 ✂️ |
-| `sourcePlatformList` | `[{onebot, 1085190201}]` | 📥 来源平台频道列表（默认监听 onebot 群 1085190201） 👂 |
+| `normalizePlatformChatWhitespace` | `true` | 🧹 清理平台聊天中的换行和制表符，将 `\n` `\r` `\t` 替换为空格，压缩连续空格，避免游戏内消息断裂 ✂️ |
+| `sourcePlatformChannels` | `[{onebot, 1085190201}]` | 📥 来源平台频道列表（默认监听 onebot 群 1085190201） 👂 |
 
 > ℹ️ 当前转发到服务端的 `group_name` 填入的是平台标识（如 `onebot`、`discord`），并非真实群名/频道名。真实来源 ID 在 `group_id` 字段。
-> 💡 **条目独立开关**：配置列表（如 `sourcePlatformList`、`targetPlatformChannelList`）中的每个条目都有独立的 `enable` 开关，可精细控制哪些频道参与转发。
+> 💡 **条目独立开关**：配置列表（如 `sourcePlatformChannels`、`targetPlatformChannels`）中的每个条目都有独立的 `enable` 开关，可精细控制哪些频道参与转发。
 > 🤖 **Bot 选择**：这些列表条目的 `selfId` 可以留空；默认只使用第一个匹配 `platform` 的 Bot，关闭 `useFirstBotWhenSelfIdEmpty` 后才会向所有同平台 Bot 发送。
 
 ### 🚪 玩家加入消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerJoin` | `true` | ✅ 启用转发玩家加入消息 🚪 |
-| `customizePlayerJoinMsg` | `🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨` | ✏️ 自定义加入消息模板 🎨 |
+| `enableServerToPlatformPlayerJoin` | `true` | ✅ 启用服务器玩家加入消息转发到聊天平台 🚪 |
+| `playerJoinMessageTemplate` | `🎉🎉🎉 %PLAYER% 进入了 神秘小服服 ！！✨✨✨` | ✏️ 玩家加入消息模板 🎨 |
 
 ### 🚶 玩家离开消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerLeave` | `true` | ✅ 启用转发玩家离开消息 🚶 |
-| `customizePlayerLeaveMsg` | `😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋` | ✏️ 自定义离开消息模板 🎨 |
+| `enableServerToPlatformPlayerLeave` | `true` | ✅ 启用服务器玩家离开消息转发到聊天平台 🚶 |
+| `playerLeaveMessageTemplate` | `😢😢😢 %PLAYER% 暂时离开 神秘小服服 啦~ 呜——👋👋👋` | ✏️ 玩家离开消息模板 🎨 |
 
 ### 💬 玩家聊天消息转发
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableForwardPlayerChat` | `true` | ✅ 启用转发玩家聊天消息 💬 |
-| `customizePlayerChatMsg` | `🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%` | ✏️ 自定义聊天消息模板 🎨 |
-| `enableFowardMsgPrefixWhitelistCheck` | `false` | ✅ 启用白名单前缀检查 ⬜ |
-| `fowardMsgPrefixWhitelistList` | `['#']` | 📝 白名单前缀列表 ⬜ |
-| `enableForwardMsgPrefixBlacklistCheck` | `true` | ✅ 启用黑名单前缀检查 ⬛ |
-| `fowardMsgPrefixBlacklistList` | `['/', '!!']` | 📝 黑名单前缀列表 ⬛ |
-| `enableSenderBlacklistCheck` | `false` | ✅ 启用发送者黑名单检查 🚫 |
-| `senderBlacklistList` | `['Server']` | 📝 发送者黑名单列表 🚫 |
+| `enableServerToPlatformPlayerChat` | `true` | ✅ 启用服务器玩家聊天消息转发到聊天平台 💬 |
+| `playerChatMessageTemplate` | `🔈🔈🔈%PLAYER%在神秘小服服说: %CONTENT%` | ✏️ 玩家聊天消息模板 🎨 |
+| `enableServerChatPrefixAllowlist` | `false` | ✅ 启用服务器聊天允许前缀检查 ⬜ |
+| `serverChatAllowedPrefixes` | `['#']` | 📝 服务器聊天允许前缀列表 ⬜ |
+| `stripServerChatPrefix` | `true` | ✂️ 命中允许前缀后，转发时去掉该前缀 |
+| `enableServerChatPrefixBlocklist` | `true` | ✅ 启用服务器聊天阻止前缀检查 ⬛ |
+| `serverChatBlockedPrefixes` | `['/', '!!']` | 📝 服务器聊天阻止前缀列表 ⬛ |
+| `enableServerChatSenderBlocklist` | `false` | ✅ 启用服务器聊天发送者阻止列表检查 🚫 |
+| `serverChatBlockedSenders` | `['Server']` | 📝 服务器聊天阻止发送者列表 🚫 |
+
+> 💡 允许前缀列表会忽略空字符串；多个前缀同时匹配时优先使用最长的前缀。阻止前缀检查始终基于剥离前的原始消息执行。
 
 ### 🔄 平台消息转发到服务器
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `enableFowardPlatformChat` | `true` | ✅ 启用转发平台消息到服务器 📤 |
-| `platformChatPrefixCheck` | `false` | ✅ 启用平台消息前缀检查 🔍 |
-| `platformChatPrefixList` | `['#']` | 📝 平台消息前缀列表 🔍 |
+| `enablePlatformToServerChat` | `true` | ✅ 启用聊天平台消息转发到服务器 📤 |
+| `enablePlatformChatPrefixAllowlist` | `false` | ✅ 启用平台聊天允许前缀检查 🔍 |
+| `platformChatAllowedPrefixes` | `['#']` | 📝 平台聊天允许前缀列表 🔍 |
+| `stripPlatformChatPrefix` | `true` | ✂️ 命中允许前缀后，转发时去掉该前缀 |
 | `excludeBotMessages` | `true` | 🤖 排除机器人自己发送的消息 🚫 |
+
+> 💡 允许前缀列表会忽略空字符串；多个前缀同时匹配时优先使用最长的前缀。
 
 > ⚠️ **富文本支持范围**: 当前仅处理文本、@提及（转为 `<at @userId>`）、图片（转为 `<img:N>` + images 数组）。其他平台特有消息元素（如表情、卡片、文件等）会退化为 `<元素类型>` 占位文本。
 
@@ -349,7 +355,7 @@ targetPlatformChannelList:
 | `execCommandAdminUserIdList` | `[{onebot, 1830540513}]` | 👤 允许执行命令的用户白名单（默认管理员 onebot 的 1830540513）👥 |
 | `execCommandTimeoutMs` | `10000` | ⏱️ 命令执行超时时间（毫秒）⌛ |
 | `execCommandMaxReplyLength` | `1500` | 📏 回复最大字符数 ✂️ |
-| `noDeduplicate` | `false` | 🔄 指令执行结果不去重，每条 command_result 立即返回。可用于调试，配合 CSS 服务端插件的 execCommandMode:both 查看双路径执行情况 🐛 |
+| `deduplicateCommandResults` | `true` | 🔄 指令执行结果去重，同一请求只处理第一条 command_result；关闭后每条结果都会立即返回 🐛 |
 
 ## 🖥️ 命令
 
@@ -388,7 +394,7 @@ targetPlatformChannelList:
 > - 解析到的服务器消息类型、玩家名、消息内容
 > - 准备发送到频道的消息
 > - 跳过未启用的目标频道原因
-> - 消息被白名单 / 黑名单 / 发送者黑名单拦截的详情
+> - 消息被允许前缀 / 阻止前缀 / 发送者阻止列表拦截的详情
 >
 > **💬 平台消息中间件**
 > - 中间件收到的消息内容与来源（platform / channelId / userId）
